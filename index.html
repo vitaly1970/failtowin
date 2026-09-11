@@ -6,7 +6,7 @@
 <title>The Encyclopedia of Fuckups</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Playfair+Display:wght@700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FBFAF8;
@@ -20,7 +20,7 @@
   --accent:#F5A25D;
   --accent-soft:#FDEBD9;
   --serif:'Playfair Display', Georgia, serif;
-  --sans:'Inter', -apple-system, Helvetica, Arial, sans-serif;
+  --sans:'Quicksand', -apple-system, Helvetica, Arial, sans-serif;
   --hand:'Caveat', cursive;
 }
 *{box-sizing:border-box}
@@ -93,9 +93,9 @@ section{padding:66px 0}
 .section-title{font-family:var(--serif);font-weight:700;font-size:30px;margin:0 0 4px;letter-spacing:-.01em}
 .section-sub{color:var(--body);margin:0 0 40px;font-size:16.5px}
 
-.cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:26px}
-.cat{display:flex;flex-direction:column;gap:10px}
-.cat img{width:70px;height:auto;display:block;margin:0 0 4px -6px}
+.cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;justify-content:center}
+.cat{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.cat img{width:70px;height:auto;display:block}
 .cat:hover img{transform:translateY(-2px)}
 .cat-name{font-family:var(--serif);font-weight:700;font-size:20px}
 .cat-arrow{font-size:16px;line-height:1;color:var(--ink)}
