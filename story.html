@@ -40,10 +40,18 @@ h1{
   border-radius:999px;font-weight:600;font-size:14.5px;padding:12px 22px;
 }
 .cta a:hover{background:#2c2c2c}
-.missing{padding:40px 0 70px}
-.missing h1{margin-bottom:12px}
-.missing p{font-size:16px;color:var(--body);margin:0 0 20px}
-.missing a{border-bottom:2px solid var(--accent);padding-bottom:2px;font-weight:500}
+.missing{padding:30px 0 50px}
+.missing-grid{display:grid;grid-template-columns:minmax(0,1fr) 46%;gap:40px;align-items:center}
+.missing-col{min-width:0}
+.missing .topline img{height:38px}
+.missing h1{font-size:clamp(34px,4.2vw,50px);margin:0 0 18px}
+.missing p{font-size:16.5px;line-height:1.6;color:var(--body);margin:0 0 24px}
+.missing-link{
+  display:inline-flex;align-items:center;gap:10px;font-weight:500;font-size:15.5px;
+  border-bottom:2px solid var(--accent);padding-bottom:3px;
+}
+.missing-art{margin:0;min-width:0}
+.missing-art img{display:block;width:100%;height:auto}
 
 footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:34px;align-items:end}
 .foot-text p{margin:0 0 10px;max-width:none}
@@ -56,6 +64,8 @@ footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;ga
   .story-art{grid-column:1/-1;max-width:420px;margin:0}
 }
 @media(max-width:900px){
+  .missing-grid{grid-template-columns:1fr;gap:24px}
+  .missing-art{order:-1;max-width:400px}
   .story-grid{grid-template-columns:1fr;gap:24px}
   .story-art{max-width:360px}
   h1{font-size:28px}
@@ -105,10 +115,23 @@ footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;ga
 </section>
 
 <section class="missing" id="missing" hidden>
-  <div class="wrap">
-    <h1>This one got away</h1>
-    <p>We can&rsquo;t find that story. It may have been renamed, or the link lost a piece on the way.</p>
-    <a href="search.html">Search for another one</a>
+  <div class="wrap missing-grid">
+    <div class="missing-col">
+      <a class="back" href="search.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6M11 18l-6-6 6-6"/></svg>
+        Back to search
+      </a>
+      <p class="topline"><img src="assets/img/icon-no-story.png" alt=""><span>No story found</span></p>
+      <h1>This one got away</h1>
+      <p>We can&rsquo;t find that story. It may have been renamed, or the link lost a piece on the way.</p>
+      <a class="missing-link" href="search.html">Search for another one
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+
+    <p class="missing-art">
+      <img src="assets/img/fedya-missing.png" alt="Fedya, the encyclopedia's cat, shrugging with both paws up next to a laptop and scattered papers. He says: well, that didn't work.">
+    </p>
   </div>
 </section>
 </main>
