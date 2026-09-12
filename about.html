@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — The Encyclopedia of Fuckups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.about{padding:30px 0 60px}
+h1{
+  font-family:var(--serif);font-weight:800;
+  font-size:clamp(34px,4.2vw,50px);line-height:1.06;
+  letter-spacing:-.02em;margin:0 0 30px;
+}
+.blocks{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:34px 50px}
+.block h2{
+  font-family:var(--serif);font-weight:700;font-size:21px;
+  letter-spacing:-.01em;margin:0 0 10px;
+}
+.block p{font-size:16px;line-height:1.68;color:var(--body);margin:0}
+.cta{
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+  border-top:1px solid var(--line);margin-top:38px;padding-top:24px;
+}
+.cta p{margin:0;font-family:var(--hand);font-size:23px;color:var(--ink-2)}
+.cta a{
+  display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:#fff;
+  border-radius:999px;font-weight:600;font-size:14.5px;padding:12px 22px;
+}
+.cta a:hover{background:#2c2c2c}
+
+footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:34px;align-items:end}
+.foot-text p{margin:0 0 10px;max-width:none}
+.foot-text p:last-child{margin-bottom:0}
+.foot-art{margin:0}
+.foot-art img{display:block;width:100%;height:auto}
+
+@media(max-width:900px){
+  h1{font-size:32px;margin-bottom:24px}
+  .blocks{grid-template-columns:1fr;gap:28px}
+  footer .wrap.foot-grid{grid-template-columns:1fr;gap:22px}
+  .foot-art{max-width:320px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="index.html">
+      <img src="assets/img/logo.jpeg" alt="The Encyclopedia of Fuckups">
+      <span class="brand-name">The Encyclopedia<br>of Fuckups</span>
+    </a>
+  </div>
+</header>
+
+<main>
+<section class="about">
+  <div class="wrap">
+    <h1>About</h1>
+
+    <div class="blocks">
+      <div class="block">
+        <h2>What this is</h2>
+        <p>A collection of things that went wrong, written by the people they went wrong for. Sorted so you can find the one that matches what you are about to do.</p>
+      </div>
+
+      <div class="block">
+        <h2>Why</h2>
+        <p>Everybody publishes how they succeeded. The useful part is almost always in what they leave out &mdash; the number that did not add up, the contract nobody read, the friend who should not have been hired. This is a place where that part is the whole story.</p>
+      </div>
+
+      <div class="block">
+        <h2>Where the stories come from</h2>
+        <p>Readers send them in. Some come from interviews and podcasts, where somebody told their own story out loud. Every story keeps its author&rsquo;s words; what gets added is the shape &mdash; what it cost, where the point of no return was, what they would do differently.</p>
+      </div>
+
+      <div class="block">
+        <h2>Fedya</h2>
+        <p>The cat runs the front desk. He has read everything here and made most of it himself.</p>
+      </div>
+    </div>
+
+    <div class="cta">
+      <p>Got one of your own?</p>
+      <a href="submit.html">Tell us your super unique story
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div class="foot-text">
+      <p>The Encyclopedia of Fuckups &middot; 2026</p>
+      <p>Personal stories are submitted by readers and are not independently verified. <a href="submit.html">Submit a fuckup</a></p>
+    </div>
+    <p class="foot-art">
+      <img src="assets/img/fedya-footer.png" alt="Fedya, the encyclopedia's cat, lying next to a mug and a stack of books, saying: that's it, folks!">
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
