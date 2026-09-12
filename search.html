@@ -79,15 +79,6 @@
       <img src="assets/img/logo.jpeg" alt="The Encyclopedia of Fuckups">
       <span class="brand-name">The Encyclopedia<br>of Fuckups</span>
     </a>
-    <nav class="menu">
-      <a class="is-active" href="index.html#stories">Stories</a>
-      <a href="index.html#categories">Categories</a>
-      <a href="index.html#about">About</a>
-      <a href="submit.html">Submit a Fuckup</a>
-    </nav>
-    <button class="icon-btn" type="button" id="focus-search" aria-label="Search">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-    </button>
   </div>
 </header>
 
@@ -296,12 +287,6 @@ function render(){
     var url = state.query ? 'search.html?q=' + encodeURIComponent(state.query) : 'search.html';
     history.replaceState(null, '', url);
     render();
-  });
-
-  document.getElementById('focus-search').addEventListener('click', function(){
-    var input = document.getElementById('q');
-    input.focus();
-    input.select();
   });
 })();
 </script>
