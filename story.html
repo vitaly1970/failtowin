@@ -10,7 +10,9 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
 .story{padding:30px 0 60px}
-.story-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px 50px;align-items:start}
+.story-grid{display:grid;grid-template-columns:minmax(0,1fr) 33% 260px;gap:26px 34px;align-items:start}
+.story-art{margin:6px 0 0;min-width:0}
+.story-art img{display:block;width:100%;height:auto}
 .story-col{min-width:0}
 .back{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);margin:0 0 18px}
 .back:hover{color:var(--ink)}
@@ -49,8 +51,13 @@ footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;ga
 .foot-art{margin:0}
 .foot-art img{display:block;width:100%;height:auto}
 
+@media(max-width:1100px){
+  .story-grid{grid-template-columns:minmax(0,1fr) 260px}
+  .story-art{grid-column:1/-1;max-width:420px;margin:0}
+}
 @media(max-width:900px){
   .story-grid{grid-template-columns:1fr;gap:24px}
+  .story-art{max-width:360px}
   h1{font-size:28px}
   footer .wrap.foot-grid{grid-template-columns:1fr;gap:22px}
   .foot-art{max-width:320px}
@@ -81,6 +88,10 @@ footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;ga
       <p class="byline" id="byline"></p>
       <div class="body" id="body"></div>
     </div>
+
+    <p class="story-art">
+      <img src="assets/img/fedya-story.png" alt="Fedya, the encyclopedia's cat, sitting at a laptop with a mug that reads: new plans (maybe). He says: well, at least I tried.">
+    </p>
 
     <div class="facts" id="facts"></div>
 
