@@ -16,7 +16,8 @@ h1{
   letter-spacing:-.02em;margin:0 0 30px;
 }
 .blocks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px 50px}
-.lower{display:grid;grid-template-columns:40% minmax(0,1fr);gap:0 40px;align-items:end;margin-top:44px}
+body{overflow-x:hidden}
+.lower{display:grid;grid-template-columns:40% minmax(0,1fr);gap:0 40px;align-items:end;margin-top:44px;margin-right:calc((100% - 100vw)/2)}
 .lower-col{min-width:0}
 .about-art{margin:0;min-width:0}
 .about-art img{display:block;width:100%;height:auto}
@@ -36,22 +37,18 @@ h1{
 }
 .cta a:hover{background:#2c2c2c}
 
-footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:34px;align-items:end}
+footer .wrap.foot-grid{display:block}
 .foot-text p{margin:0 0 10px;max-width:none}
 .foot-text p:last-child{margin-bottom:0}
-.foot-art{margin:0}
-.foot-art img{display:block;width:100%;height:auto}
 
 @media(max-width:1100px){
   .blocks{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .lower{grid-template-columns:1fr}
+  .lower{grid-template-columns:1fr;margin-right:0}
 }
 @media(max-width:900px){
   h1{font-size:32px;margin-bottom:24px}
   .blocks{grid-template-columns:1fr;gap:28px}
-  .lower{grid-template-columns:1fr;gap:26px;margin-top:30px}
-  footer .wrap.foot-grid{grid-template-columns:1fr;gap:22px}
-  .foot-art{max-width:320px}
+  .lower{grid-template-columns:1fr;gap:26px;margin-top:30px;margin-right:0}
 }
 </style>
 </head>
@@ -118,9 +115,6 @@ footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;ga
       <p>The Encyclopedia of Fuckups &middot; 2026</p>
       <p>Personal stories are submitted by readers and are not independently verified. <a href="submit.html">Submit a fuckup</a></p>
     </div>
-    <p class="foot-art">
-      <img src="assets/img/fedya-footer.png" alt="Fedya, the encyclopedia's cat, lying next to a mug and a stack of books, saying: that's it, folks!">
-    </p>
   </div>
 </footer>
 
