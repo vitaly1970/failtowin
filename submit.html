@@ -23,7 +23,7 @@ h1{
   font-size:clamp(36px,5vw,52px);line-height:1.05;
   letter-spacing:-.018em;margin:0 0 20px;
 }
-.lead{font-size:17px;color:var(--body);margin:0 0 36px;line-height:1.55}
+.lead{font-family:var(--hand);font-size:27px;color:var(--ink-2);margin:0 0 36px;line-height:1.32}
 label{display:block;font-weight:600;font-size:14.5px;margin:0 0 8px}
 .hint{font-size:13px;color:var(--muted);margin:6px 0 0}
 textarea,input[type=text]{
@@ -45,6 +45,7 @@ textarea{min-height:220px;resize:vertical;line-height:1.55}
 }
 
 @media(max-width:900px){
+  .lead{font-size:23px}
   .submit-hero{padding:30px 0 60px}
   .submit-grid{grid-template-columns:1fr;gap:26px}
   .submit-art{order:-1;max-width:400px;margin:0 auto}
@@ -59,12 +60,6 @@ textarea{min-height:220px;resize:vertical;line-height:1.55}
       <img src="assets/img/logo.jpeg" alt="The Encyclopedia of Fuckups">
       <span class="brand-name">The Encyclopedia<br>of Fuckups</span>
     </a>
-    <nav class="menu">
-      <a href="index.html#stories">Stories</a>
-      <a href="index.html#categories">Categories</a>
-      <a href="index.html#about">About</a>
-      <a class="is-active" href="submit.html">Submit a Fuckup</a>
-    </nav>
   </div>
 </header>
 
