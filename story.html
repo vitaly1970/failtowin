@@ -157,54 +157,10 @@ var TOPICS = {
   'fashion':'Fashion','social-media':'Social Media','diy-crafts':'DIY & Crafts'
 };
 
-/* Demo stories, kept for checking the page. They will be replaced by the base.
+/* Stories come from the base. Each key is the slug used in story.html?slug=...
    Fields: topic, date, author, title, body (array of paragraphs), cost, turn, lesson.
    Any field left out simply does not appear on the page. */
-var STORIES = {
-  'cheap-flight-airport': {
-    topic:'travel', date:'2026-09-09', author:'',
-    title:'Booked a "cheap" flight. Ended up sleeping in the airport.',
-    body:[
-      'The fare was a third of everything else on the page, and I booked it in about ninety seconds. I saw the word "layover" and read it the way you read terms and conditions.',
-      'The layover was twenty-four hours, in a country I had no visa for. Airport security would not let me out of the transit zone, the lounges were cash only, and every bench had armrests. I spent the night on a strip of carpet near gate 42 with my backpack under my head.'
-    ],
-    cost:'One night of sleep and $180 in airport food and a new ticket',
-    turn:'Booking before reading the second leg',
-    lesson:'A fare that beats everything else is buying something from you, not giving it'
-  },
-  'safe-resort-poisoning': {
-    topic:'health', date:'2026-09-04', author:'',
-    title:'Went to a "safe" resort. Got food poisoning on day two.',
-    body:[
-      'The photos showed white tablecloths and a buffet the length of a bus. I ate at that buffet four times in the first day, including a seafood tray that had clearly been sitting out since lunch.',
-      'By the second evening I could not stand up. The hotel doctor came twice, charged both times, and I spent five of my seven days within reach of a bathroom.'
-    ],
-    cost:'$400 in doctor visits and five days of a paid holiday',
-    lesson:'A buffet that never runs out is not being replaced, it is being topped up'
-  },
-  'quit-before-offer': {
-    topic:'work', date:'2026-09-02', author:'Anonymous',
-    title:'Quit my job before the new offer was signed.',
-    body:[
-      'The conversation had gone well. The hiring manager said the words "we want you" and told me the paperwork was a formality, so I handed in my notice the same afternoon and felt very decisive about it.',
-      'Eleven days later the company announced a hiring freeze. My offer was never signed. My old role had already been posted, and the recruiter who called me back said the position was "on hold indefinitely".',
-      'I was out of work for four months.'
-    ],
-    cost:'Four months of income',
-    turn:'Resigning on a verbal yes',
-    lesson:'Nothing is an offer until it is a signed offer'
-  },
-  'deleted-the-backup': {
-    topic:'technology', date:'2026-09-07', author:'',
-    title:'Deleted the backup to free up space.',
-    body:[
-      'The drive had been shouting at me for a week, and the backup folder was the biggest thing on it. Everything in there was in the cloud too, I was sure of it, so I dragged the folder to the bin and emptied it.',
-      'Two of the three folders had been in the cloud. The third had stopped syncing in March after I changed my password and never signed back in. That was the one with eight years of photographs.'
-    ],
-    cost:'Eight years of photographs',
-    lesson:'A backup you have not opened in a year is a guess, not a backup'
-  }
-};
+var STORIES = {};
 
 function param(name){
   return (new URLSearchParams(location.search).get(name) || '').trim();
