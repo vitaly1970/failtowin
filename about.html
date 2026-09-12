@@ -9,15 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
-.about{padding:18px 0 22px}
+.about{padding:14px 0 14px}
 h1{
   font-family:var(--serif);font-weight:800;
-  font-size:clamp(30px,3.6vw,42px);line-height:1.06;
-  letter-spacing:-.02em;margin:0 0 20px;
+  font-size:clamp(26px,2.6vw,32px);line-height:1.06;
+  letter-spacing:-.02em;margin:0 0 14px;
 }
-.blocks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px 44px}
+.blocks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 40px}
 body{overflow-x:hidden}
-.lower{display:grid;grid-template-columns:40% minmax(0,1fr);gap:0 40px;align-items:end;margin-top:26px;margin-right:calc((100% - 100vw)/2)}
+.lower{display:grid;grid-template-columns:40% minmax(0,1fr);gap:0 40px;align-items:end;margin-top:18px;margin-right:calc((100% - 100vw)/2)}
 .lower-col{min-width:0}
 .about-art{margin:0;min-width:0}
 .about-art img{display:block;width:100%;height:auto}
@@ -28,7 +28,7 @@ body{overflow-x:hidden}
 .block p{font-size:15.5px;line-height:1.6;color:var(--body);margin:0}
 .cta{
   display:flex;flex-wrap:wrap;align-items:center;gap:14px;
-  border-top:1px solid var(--line);margin-top:20px;padding-top:18px;
+  border-top:1px solid var(--line);margin-top:18px;padding-top:16px;
 }
 .cta p{margin:0;font-family:var(--hand);font-size:23px;color:var(--ink-2)}
 .cta a{
@@ -37,10 +37,23 @@ body{overflow-x:hidden}
 }
 .cta a:hover{background:#2c2c2c}
 
-footer{padding:22px 0 26px}
+footer{padding:16px 0 18px}
 footer .wrap.foot-grid{display:block}
-.foot-text p{margin:0 0 10px;max-width:none}
+.foot-text p{margin:0 0 8px;max-width:none}
 .foot-text p:last-child{margin-bottom:0}
+
+/* one screen: page fills the viewport, the illustration takes what is left */
+@media(min-width:901px){
+  body{min-height:100dvh;display:flex;flex-direction:column}
+  main{flex:1 1 auto;min-height:0;display:flex}
+  .about{flex:1 1 auto;min-height:0;display:flex}
+  .about > .wrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  .blocks{flex:0 0 auto}
+  .lower{flex:1 1 auto;min-height:0;align-items:stretch}
+  .lower-col{display:flex;flex-direction:column;justify-content:flex-end}
+  .about-art{display:flex;align-items:flex-end;justify-content:flex-end;min-height:150px}
+  .about-art img{width:100%;height:100%;max-height:100%;object-fit:contain;object-position:right bottom}
+}
 
 @media(max-width:1100px){
   .blocks{grid-template-columns:repeat(2,minmax(0,1fr))}
