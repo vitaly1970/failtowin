@@ -154,51 +154,8 @@ var TOPICS = {
   'fashion':'Fashion','social-media':'Social Media','diy-crafts':'DIY & Crafts'
 };
 
-/* Demo stories. Replace this array with the real set when stories.md is ready. */
-var STORIES = [
-  {slug:'cheap-flight-airport', topic:'travel', date:'2026-09-09',
-   title:'Booked a "cheap" flight. Ended up sleeping in the airport.',
-   snippet:'Thought it was a great deal. Turned out to be a 24-hour layover in a different country.'},
-  {slug:'safe-resort-poisoning', topic:'health', date:'2026-09-04',
-   title:'Went to a "safe" resort. Got food poisoning on day two.',
-   snippet:'It looked perfect in the photos. I spent the rest of the trip in the hotel bathroom.'},
-  {slug:'tour-that-never-existed', topic:'money', date:'2026-08-21',
-   title:'Paid for a tour that never existed.',
-   snippet:'I sent the deposit by bank transfer. The agency went quiet a week before the flight.'},
-  {slug:'hiked-without-weather', topic:'travel', date:'2026-08-28',
-   title:'Hiked without checking the weather.',
-   snippet:'"Just a little rain" turned into a storm, a broken ankle and a very expensive rescue.'},
-  {slug:'forgot-passport', topic:'travel', date:'2026-08-14',
-   title:'Forgot my passport. Found out at the gate.',
-   snippet:'A small detail, right up until the moment it cost me the whole week.'},
-  {slug:'wrong-train', topic:'travel', date:'2026-07-30',
-   title:'Took the wrong train and ended up in a town I had never heard of.',
-   snippet:'Two words on a departure board looked similar enough. They were four hours apart.'},
-  {slug:'quit-before-offer', topic:'work', date:'2026-09-02',
-   title:'Quit my job before the new offer was signed.',
-   snippet:'The verbal yes felt solid. The hiring freeze landed eleven days later.'},
-  {slug:'friend-as-contractor', topic:'home', date:'2026-08-19',
-   title:'Hired a friend to renovate my kitchen.',
-   snippet:'Three months, no contract, no kitchen, and one friendship less.'},
-  {slug:'tiling-tutorial', topic:'diy-crafts', date:'2026-08-07',
-   title:'Watched one tiling tutorial and started on the bathroom.',
-   snippet:'The video was twelve minutes long. Fixing my version took two weekends and a professional.'},
-  {slug:'skipped-inspection', topic:'cars', date:'2026-07-24',
-   title:'Skipped the inspection because the car looked clean.',
-   snippet:'The seller was in a hurry. So was I. The gearbox went a month later.'},
-  {slug:'marathon-six-weeks', topic:'fitness', date:'2026-08-11',
-   title:'Signed up for a marathon six weeks out.',
-   snippet:'I went from zero to forty kilometres a week. My knee made the decision for me.'},
-  {slug:'crypto-of-a-friend', topic:'money', date:'2026-07-18',
-   title:'Put my savings into a coin a colleague was sure about.',
-   snippet:'He was not lying. He was just as wrong as I was, only louder.'},
-  {slug:'deleted-the-backup', topic:'technology', date:'2026-09-07',
-   title:'Deleted the backup to free up space.',
-   snippet:'The drive was full, the files were "definitely" in the cloud. They were not.'},
-  {slug:'posted-in-anger', topic:'social-media', date:'2026-08-25',
-   title:'Posted about my boss at two in the morning.',
-   snippet:'I deleted it after six minutes. Someone had already taken a screenshot.'}
-];
+/* Stories come from the base. Each entry: slug, topic, date, title, snippet. */
+var STORIES = [];
 
 function slugFor(text){
   var t = String(text || '').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
