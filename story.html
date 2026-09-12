@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story — The Encyclopedia of Fuckups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.story{padding:30px 0 60px}
+.story-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px 50px;align-items:start}
+.story-col{min-width:0}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);margin:0 0 18px}
+.back:hover{color:var(--ink)}
+.topline{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--muted);margin:0 0 12px}
+.topline img{display:block;height:26px;width:auto}
+h1{
+  font-family:var(--serif);font-weight:800;
+  font-size:clamp(30px,3.4vw,42px);line-height:1.08;
+  letter-spacing:-.018em;margin:0 0 14px;
+}
+.byline{font-family:var(--hand);font-size:22px;color:var(--ink-2);margin:0 0 24px}
+.body p{font-size:16px;line-height:1.68;color:var(--body);margin:0 0 16px}
+.body p:last-child{margin-bottom:0}
+.facts{display:grid;gap:12px;margin:0}
+.fact{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.fact b{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin:0 0 5px}
+.fact span{font-size:15px;line-height:1.45;color:var(--ink)}
+.cta{
+  grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+  border-top:1px solid var(--line);margin-top:10px;padding-top:22px;
+}
+.cta p{margin:0;font-family:var(--hand);font-size:23px;color:var(--ink-2)}
+.cta a{
+  display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:#fff;
+  border-radius:999px;font-weight:600;font-size:14.5px;padding:12px 22px;
+}
+.cta a:hover{background:#2c2c2c}
+.missing{padding:40px 0 70px}
+.missing h1{margin-bottom:12px}
+.missing p{font-size:16px;color:var(--body);margin:0 0 20px}
+.missing a{border-bottom:2px solid var(--accent);padding-bottom:2px;font-weight:500}
+
+footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:34px;align-items:end}
+.foot-text p{margin:0 0 10px;max-width:none}
+.foot-text p:last-child{margin-bottom:0}
+.foot-art{margin:0}
+.foot-art img{display:block;width:100%;height:auto}
+
+@media(max-width:900px){
+  .story-grid{grid-template-columns:1fr;gap:24px}
+  h1{font-size:28px}
+  footer .wrap.foot-grid{grid-template-columns:1fr;gap:22px}
+  .foot-art{max-width:320px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="index.html">
+      <img src="assets/img/logo.jpeg" alt="The Encyclopedia of Fuckups">
+      <span class="brand-name">The Encyclopedia<br>of Fuckups</span>
+    </a>
+  </div>
+</header>
+
+<main>
+<section class="story" id="story" hidden>
+  <div class="wrap story-grid">
+    <div class="story-col">
+      <a class="back" href="search.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6M11 18l-6-6 6-6"/></svg>
+        Back to search
+      </a>
+      <p class="topline" id="topline"></p>
+      <h1 id="title"></h1>
+      <p class="byline" id="byline"></p>
+      <div class="body" id="body"></div>
+    </div>
+
+    <div class="facts" id="facts"></div>
+
+    <div class="cta">
+      <p>Been there yourself?</p>
+      <a href="submit.html">Tell us your super unique story
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="missing" id="missing" hidden>
+  <div class="wrap">
+    <h1>This one got away</h1>
+    <p>We can&rsquo;t find that story. It may have been renamed, or the link lost a piece on the way.</p>
+    <a href="search.html">Search for another one</a>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div class="foot-text">
+      <p>The Encyclopedia of Fuckups &middot; 2026</p>
+      <p>Personal stories are submitted by readers and are not independently verified. <a href="submit.html">Submit a fuckup</a></p>
+    </div>
+    <p class="foot-art">
+      <img src="assets/img/fedya-footer.png" alt="Fedya, the encyclopedia's cat, lying next to a mug and a stack of books, saying: that's it, folks!">
+    </p>
+  </div>
+</footer>
+
+<script>
+var TOPICS = {
+  'work':'Work','relationships':'Relationships','family':'Family','dating':'Dating',
+  'health':'Health','home':'Home','travel':'Travel','food':'Food','shopping':'Shopping',
+  'money':'Money','education':'Education','technology':'Technology','cars':'Cars',
+  'parenting':'Parenting','pets':'Pets','fitness':'Fitness','beauty':'Beauty',
+  'fashion':'Fashion','social-media':'Social Media','diy-crafts':'DIY & Crafts'
+};
+
+/* Demo stories. Replace this object with the real set when stories.md is ready.
+   Any field left out simply does not appear on the page. */
+var STORIES = {
+  'cheap-flight-airport': {
+    topic:'travel', date:'2026-09-09', author:'',
+    title:'Booked a "cheap" flight. Ended up sleeping in the airport.',
+    body:[
+      'The fare was a third of everything else on the page, and I booked it in about ninety seconds. I saw the word "layover" and read it the way you read terms and conditions.',
+      'The layover was twenty-four hours, in a country I had no visa for. Airport security would not let me out of the transit zone, the lounges were cash only, and every bench had armrests. I spent the night on a strip of carpet near gate 42 with my backpack under my head.'
+    ],
+    cost:'One night of sleep and $180 in airport food and a new ticket',
+    turn:'Booking before reading the second leg',
+    lesson:'A fare that beats everything else is buying something from you, not giving it'
+  },
+  'safe-resort-poisoning': {
+    topic:'health', date:'2026-09-04', author:'',
+    title:'Went to a "safe" resort. Got food poisoning on day two.',
+    body:[
+      'The photos showed white tablecloths and a buffet the length of a bus. I ate at that buffet four times in the first day, including a seafood tray that had clearly been sitting out since lunch.',
+      'By the second evening I could not stand up. The hotel doctor came twice, charged both times, and I spent five of my seven days within reach of a bathroom.'
+    ],
+    cost:'$400 in doctor visits and five days of a paid holiday',
+    lesson:'A buffet that never runs out is not being replaced, it is being topped up'
+  },
+  'quit-before-offer': {
+    topic:'work', date:'2026-09-02', author:'Anonymous',
+    title:'Quit my job before the new offer was signed.',
+    body:[
+      'The conversation had gone well. The hiring manager said the words "we want you" and told me the paperwork was a formality, so I handed in my notice the same afternoon and felt very decisive about it.',
+      'Eleven days later the company announced a hiring freeze. My offer was never signed. My old role had already been posted, and the recruiter who called me back said the position was "on hold indefinitely".',
+      'I was out of work for four months.'
+    ],
+    cost:'Four months of income',
+    turn:'Resigning on a verbal yes',
+    lesson:'Nothing is an offer until it is a signed offer'
+  },
+  'deleted-the-backup': {
+    topic:'technology', date:'2026-09-07', author:'',
+    title:'Deleted the backup to free up space.',
+    body:[
+      'The drive had been shouting at me for a week, and the backup folder was the biggest thing on it. Everything in there was in the cloud too, I was sure of it, so I dragged the folder to the bin and emptied it.',
+      'Two of the three folders had been in the cloud. The third had stopped syncing in March after I changed my password and never signed back in. That was the one with eight years of photographs.'
+    ],
+    cost:'Eight years of photographs',
+    lesson:'A backup you have not opened in a year is a guess, not a backup'
+  }
+};
+
+function param(name){
+  return (new URLSearchParams(location.search).get(name) || '').trim();
+}
+
+function ago(dateStr){
+  var days = Math.round((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  if (days < 1) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7) return days + ' days ago';
+  if (days < 14) return '1 week ago';
+  if (days < 31) return Math.floor(days / 7) + ' weeks ago';
+  if (days < 62) return '1 month ago';
+  return Math.floor(days / 30) + ' months ago';
+}
+
+function fact(label, value){
+  if (!value) return null;
+  var box = document.createElement('div');
+  box.className = 'fact';
+  var b = document.createElement('b');
+  b.textContent = label;
+  var span = document.createElement('span');
+  span.textContent = value;
+  box.appendChild(b);
+  box.appendChild(span);
+  return box;
+}
+
+(function init(){
+  var story = STORIES[param('slug')];
+
+  if (!story){
+    document.getElementById('missing').hidden = false;
+    return;
+  }
+
+  document.getElementById('story').hidden = false;
+  document.title = story.title + ' — The Encyclopedia of Fuckups';
+
+  var topline = document.getElementById('topline');
+  var icon = document.createElement('img');
+  icon.src = 'assets/img/topics/' + story.topic + '.png';
+  icon.alt = '';
+  var meta = document.createElement('span');
+  meta.textContent = TOPICS[story.topic] + ' \u00b7 ' + ago(story.date);
+  topline.appendChild(icon);
+  topline.appendChild(meta);
+
+  document.getElementById('title').textContent = story.title;
+  document.getElementById('byline').textContent = story.author ? story.author + ' told us this one' : 'Told to us anonymously';
+
+  var body = document.getElementById('body');
+  (story.body || []).forEach(function(text){
+    var p = document.createElement('p');
+    p.textContent = text;
+    body.appendChild(p);
+  });
+
+  var facts = document.getElementById('facts');
+  [fact('What it cost', story.cost),
+   fact('Point of no return', story.turn),
+   fact('What I\u2019d do differently', story.lesson)].forEach(function(box){
+    if (box) facts.appendChild(box);
+  });
+})();
+</script>
+
+</body>
+</html>
