@@ -23,8 +23,9 @@ h1{
   font-size:clamp(36px,5vw,52px);line-height:1.05;
   letter-spacing:-.018em;margin:0 0 20px;
 }
-.lead{font-family:var(--hand);font-size:27px;color:var(--ink-2);margin:0 0 36px;line-height:1.32}
+.lead{font-family:var(--hand);font-size:27px;color:var(--ink-2);margin:0 0 30px;line-height:1.32}
 label{display:block;font-weight:600;font-size:14.5px;margin:0 0 8px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .hint{font-size:13px;color:var(--muted);margin:6px 0 0}
 textarea,input[type=text]{
   width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;
@@ -73,7 +74,7 @@ textarea{min-height:220px;resize:vertical;line-height:1.55}
 
     <form onsubmit="return false">
       <div class="field">
-        <label for="story">What happened?</label>
+        <label class="sr-only" for="story">What happened?</label>
         <textarea id="story" placeholder="Take your time. What did you try, what went wrong, what did it cost you?"></textarea>
       </div>
       <div class="field">
