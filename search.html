@@ -9,15 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
-.hero{background:var(--hero-bg);padding:26px 0 56px}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 44%;gap:40px;align-items:center}
+.hero{background:var(--hero-bg);padding:26px 0 32px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 34%;gap:40px;align-items:center}
 .hero-col{min-width:0}
 .hero h1{
   font-family:var(--serif);font-weight:800;font-size:clamp(38px,4.4vw,60px);
   line-height:1.04;letter-spacing:-.02em;margin:0 0 34px;
 }
 .hero-art{margin:0}
-.hero-art img{display:block;width:100%;height:auto}
+.hero-art img{display:block;width:auto;height:auto;max-width:100%;max-height:320px;margin-left:auto}
 
 .search{
   display:flex;align-items:center;gap:14px;background:#fff;
@@ -35,8 +35,8 @@
 }
 .search button:hover{background:#EE9247}
 
-.results{padding:40px 0 70px}
-.results[hidden],.empty[hidden]{display:none}
+.results{padding:24px 0 70px}
+.results[hidden]{display:none}
 .count{font-family:var(--serif);font-weight:700;font-size:26px;letter-spacing:-.01em;margin:0 0 4px}
 .list{margin-top:12px;border-top:1px solid var(--line)}
 .item{
@@ -52,14 +52,6 @@
 .item-meta{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:18px;padding-top:4px}
 .item-date{font-size:13px;color:var(--muted);white-space:nowrap}
 .item-go{color:var(--ink);line-height:0}
-.empty{
-  display:flex;align-items:center;gap:26px;margin-top:12px;
-  background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px 30px;
-}
-.empty img{flex:0 0 120px;width:120px;height:auto;display:block}
-.empty h2{font-family:var(--serif);font-weight:700;font-size:22px;margin:0 0 8px}
-.empty p{margin:0 0 14px;color:var(--body)}
-.empty-cta{display:inline-flex;align-items:center;gap:8px;font-weight:500;color:var(--ink);border-bottom:2px solid var(--accent);padding-bottom:2px}
 
 
 @media(max-width:900px){
@@ -68,7 +60,6 @@
   .hero-art{order:-1;max-width:420px;margin:0 auto}
   .item{gap:14px}
   .item-meta{gap:12px}
-  .empty{flex-direction:column;text-align:center;gap:16px}
 }
 </style>
 </head>
@@ -112,16 +103,6 @@
     <h2 class="count" id="count" aria-live="polite">Searching&hellip;</h2>
 
     <div id="list" class="list"></div>
-    <div id="empty" class="empty" hidden>
-      <img src="assets/img/fedya-search.png" alt="">
-      <div>
-        <h2>No fuckups here yet</h2>
-        <p>Nobody has told us about this one. Try another topic &mdash; or be the first.</p>
-        <a class="empty-cta" href="submit.html">Submit a fuckup
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-        </a>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -204,15 +185,12 @@ function render(){
   else countEl.textContent = shown.length + ' ' + word + ' matching \u201c' + state.query + '\u201d';
 
   var list = document.getElementById('list');
-  var empty = document.getElementById('empty');
   list.innerHTML = '';
   if (!shown.length){
     list.hidden = true;
-    empty.hidden = false;
     return;
   }
   list.hidden = false;
-  empty.hidden = true;
 
   shown.forEach(function(s){
     var a = document.createElement('a');
