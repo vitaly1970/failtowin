@@ -241,7 +241,9 @@ function render(){
 
   document.getElementById('search-form').addEventListener('submit', function(e){
     e.preventDefault();
-    state.query = document.getElementById('q').value.trim();
+    var typed = document.getElementById('q').value.trim();
+    if (!typed){ document.getElementById('q').focus(); return; }
+    state.query = typed;
     var url = state.query ? 'search.html?q=' + encodeURIComponent(state.query) : 'search.html';
     history.replaceState(null, '', url);
     render();
