@@ -61,11 +61,6 @@
 .empty p{margin:0 0 14px;color:var(--body)}
 .empty-cta{display:inline-flex;align-items:center;gap:8px;font-weight:500;color:var(--ink);border-bottom:2px solid var(--accent);padding-bottom:2px}
 
-footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:34px;align-items:end}
-.foot-text p{margin:0 0 10px;max-width:none}
-.foot-text p:last-child{margin-bottom:0}
-.foot-art{margin:0}
-.foot-art img{display:block;width:100%;height:auto}
 
 @media(max-width:900px){
   .hero{padding:18px 0 40px}
@@ -74,8 +69,6 @@ footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;ga
   .item{gap:14px}
   .item-meta{gap:12px}
   .empty{flex-direction:column;text-align:center;gap:16px}
-  footer .wrap.foot-grid{grid-template-columns:1fr;gap:22px}
-  .foot-art{max-width:320px}
 }
 </style>
 </head>
@@ -134,14 +127,9 @@ footer .wrap.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;ga
 </main>
 
 <footer>
-  <div class="wrap foot-grid">
-    <div class="foot-text">
-      <p>The Encyclopedia of Fuckups &middot; 2026</p>
-      <p>Personal stories are submitted by readers and are not independently verified. <a href="submit.html">Submit a fuckup</a></p>
-    </div>
-    <p class="foot-art">
-      <img src="assets/img/fedya-footer.png" alt="Fedya, the encyclopedia's cat, lying next to a mug and a stack of books, saying: that's it, folks!">
-    </p>
+  <div class="wrap">
+    <span>The Encyclopedia of Fuckups &middot; 2026</span>
+    <span>Personal stories are submitted by readers and are not independently verified. <a href="submit.html">Submit a fuckup</a></span>
   </div>
 </footer>
 

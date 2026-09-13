@@ -40,11 +40,6 @@ header{background:var(--hero-bg)}
 .brand{display:flex;align-items:center;gap:15px;margin-right:auto}
 .brand img{width:56px;height:56px;display:block;border-radius:50%}
 .brand-name{font-family:var(--serif);font-weight:700;font-size:22px;line-height:1.14}
-.menu{display:flex;gap:34px;font-size:14.5px;font-weight:500;color:var(--body)}
-.menu a{padding-bottom:5px}
-.menu a:hover{color:var(--ink)}
-.menu a.is-active{color:var(--ink);border-bottom:2.5px solid var(--accent)}
-.icon-btn{border:0;background:transparent;padding:6px;cursor:pointer;line-height:0;color:var(--ink)}
 
 /* hero */
 .hero{background:var(--hero-bg);padding:14px 0 0}
@@ -128,7 +123,6 @@ footer a{text-decoration:underline;text-underline-offset:3px}
 
 @media(max-width:1080px){.cat-grid{grid-template-columns:repeat(3,1fr);gap:30px}}
 @media(max-width:900px){
-  .menu{display:none}
   .hero-grid{grid-template-columns:1fr;gap:0}
   .hero-copy{padding-bottom:30px}
   .hero-art{max-width:400px;margin:0 auto}
@@ -151,14 +145,6 @@ footer a{text-decoration:underline;text-underline-offset:3px}
       <img src="data:image/jpeg;base64,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" alt="">
       <span class="brand-name">The Encyclopedia<br>of Fuckups</span>
     </a>
-    <nav class="menu">
-      <a class="is-active" href="#stories">Stories</a>
-      <a href="#about">About</a>
-      <a href="submit.html">Submit a Fuckup</a>
-    </nav>
-    <button class="icon-btn" aria-label="Search">
-      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20.5 20.5l-4-4"/></svg>
-    </button>
   </div>
 </header>
 
@@ -169,7 +155,7 @@ footer a{text-decoration:underline;text-underline-offset:3px}
       <div class="hero-note">Real mistakes.<br>Real lessons.<br>(usually.)</div>
       <h1>The Encyclopedia<br>of Fuckups</h1>
       <p class="lead">Because success is overrated, and everyone makes mistakes.</p>
-      <form class="search" action="search.html" method="get">
+      <form class="search" action="search.html" method="get" onsubmit="if(!this.q.value.trim()){this.q.focus();return false}">
         <svg class="mag" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
         <label for="q" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search for a fuckup</label>
         <input id="q" name="q" type="search" placeholder="Find fuckups that match your mood (or your industry)">
