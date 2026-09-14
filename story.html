@@ -142,17 +142,25 @@ var TOPICS = {
   'fashion':'Fashion','social-media':'Social Media','diy-crafts':'DIY & Crafts'
 };
 
-/* Stories come from the base. Each key is the slug used in story.html?slug=...
-   Fields: topic, date, author, title, body (array of paragraphs), cost, turn, lesson.
-   Any field left out simply does not appear on the page. */
-var STORIES = {};
-
 function param(name){
   return (new URLSearchParams(location.search).get(name) || '').trim();
 }
 
+/* Reader language: address first, then browser, English otherwise. */
+function readerLang(){
+  var asked = param('lang');
+  if (asked === 'ru' || asked === 'en') return asked;
+  var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
+  return nav.indexOf('ru') === 0 ? 'ru' : 'en';
+}
+
+var LANG = readerLang();
+
 function ago(dateStr){
-  var days = Math.round((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  var stamp = String(dateStr || '').replace(' ', 'T');
+  if (stamp && stamp.indexOf('Z') === -1 && stamp.indexOf('+') === -1) stamp += 'Z';
+  var days = Math.round((Date.now() - new Date(stamp).getTime()) / 86400000);
+  if (!isFinite(days)) return '';
   if (days < 1) return 'today';
   if (days === 1) return 'yesterday';
   if (days < 7) return days + ' days ago';
@@ -160,6 +168,14 @@ function ago(dateStr){
   if (days < 31) return Math.floor(days / 7) + ' weeks ago';
   if (days < 62) return '1 month ago';
   return Math.floor(days / 30) + ' months ago';
+}
+
+function paragraphs(text){
+  var raw = String(text || '').trim();
+  if (!raw) return [];
+  var parts = raw.split(/\n\s*\n/);
+  if (parts.length === 1) parts = raw.split(/\n/);
+  return parts.map(function(p){ return p.trim(); }).filter(Boolean);
 }
 
 function fact(label, value){
@@ -175,42 +191,63 @@ function fact(label, value){
   return box;
 }
 
-(function init(){
-  var story = STORIES[param('slug')];
+function showMissing(){
+  document.getElementById('missing').hidden = false;
+}
 
-  if (!story){
-    document.getElementById('missing').hidden = false;
-    return;
-  }
-
+function draw(story){
   document.getElementById('story').hidden = false;
-  document.title = story.title + ' — The Encyclopedia of Fuckups';
+  document.title = story.title + ' \u2014 The Encyclopedia of Fuckups';
 
   var topline = document.getElementById('topline');
+  topline.innerHTML = '';
   var icon = document.createElement('img');
   icon.src = 'assets/img/topics/' + story.topic + '.png';
   icon.alt = '';
   var meta = document.createElement('span');
-  meta.textContent = TOPICS[story.topic] + ' \u00b7 ' + ago(story.date);
+  var topicName = TOPICS[story.topic] || story.topic || '';
+  var when = ago(story.date);
+  meta.textContent = when ? topicName + ' \u00b7 ' + when : topicName;
   topline.appendChild(icon);
   topline.appendChild(meta);
 
   document.getElementById('title').textContent = story.title;
-  document.getElementById('byline').textContent = story.author ? story.author + ' told us this one' : 'Told to us anonymously';
+  document.getElementById('byline').textContent =
+    story.person ? story.person + ' told us this one' : 'Told to us anonymously';
 
   var body = document.getElementById('body');
-  (story.body || []).forEach(function(text){
+  body.innerHTML = '';
+  paragraphs(story.body).forEach(function(text){
     var p = document.createElement('p');
     p.textContent = text;
     body.appendChild(p);
   });
 
   var facts = document.getElementById('facts');
-  [fact('What it cost', story.cost),
-   fact('Point of no return', story.turn),
+  facts.innerHTML = '';
+  [fact('What it cost', story.outcome),
+   fact('Point of no return', story.what_happened),
    fact('What I\u2019d do differently', story.lesson)].forEach(function(box){
     if (box) facts.appendChild(box);
   });
+}
+
+(function init(){
+  var slug = param('slug');
+  if (!slug){ showMissing(); return; }
+
+  fetch('/api/story?slug=' + encodeURIComponent(slug) + '&lang=' + encodeURIComponent(LANG))
+    .then(function(r){
+      if (!r.ok) throw new Error('not found');
+      return r.json();
+    })
+    .then(function(story){
+      if (!story || story.error) throw new Error('not found');
+      draw(story);
+    })
+    .catch(function(){
+      showMissing();
+    });
 })();
 </script>
 
