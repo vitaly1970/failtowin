@@ -3,8 +3,10 @@
    Splits each story into chunks, embeds them with Workers AI,
    stores the vectors as int8 base64 in emb_en / emb_ru. */
 
-const MODEL = '@cf/baai/bge-base-en-v1.5';
-const DIM = 768;
+const MODELS = {
+  en: { name: '@cf/baai/bge-base-en-v1.5', dim: 768 },
+  ru: { name: '@cf/baai/bge-m3', dim: 1024 }
+};
 const CHUNK_CHARS = 320;
 const MIN_CHUNK = 25;
 const MAX_CHUNKS = 16;
@@ -50,7 +52,7 @@ function chunksFor(row, lang) {
   return out.slice(0, MAX_CHUNKS);
 }
 
-function packInt8(vectors) {
+function packInt8(vectors, DIM) {
   const bytes = new Uint8Array(vectors.length * DIM);
   for (let i = 0; i < vectors.length; i++) {
     const v = vectors[i];
@@ -69,11 +71,11 @@ function packInt8(vectors) {
   return btoa(binary);
 }
 
-async function embed(env, texts) {
+async function embed(env, texts, model) {
   const vectors = [];
   for (let i = 0; i < texts.length; i += BATCH) {
     const slice = texts.slice(i, i + BATCH);
-    const res = await env.AI.run(MODEL, { text: slice });
+    const res = await env.AI.run(model, { text: slice });
     const data = res && res.data ? res.data : [];
     for (let k = 0; k < data.length; k++) vectors.push(data[k]);
   }
@@ -87,6 +89,7 @@ export async function onRequestGet({ request, env }) {
   const limit = parseInt(url.searchParams.get('limit') || '200', 10);
 
   if (!env.AI) return json({ error: 'AI binding missing' }, 500);
+  const model = MODELS[lang];
 
   const col = 'emb_' + lang;
   const where =
@@ -114,9 +117,9 @@ export async function onRequestGet({ request, env }) {
     const texts = chunksFor(row, lang);
     if (!texts.length) continue;
     try {
-      const vectors = await embed(env, texts);
+      const vectors = await embed(env, texts, model.name);
       if (vectors.length !== texts.length) throw new Error('vector count mismatch');
-      const packed = packInt8(vectors);
+      const packed = packInt8(vectors, model.dim);
       await env.DB.prepare(
         'UPDATE stories_published SET ' + col + ' = ?1 WHERE id = ?2'
       ).bind(packed, row.id).run();
@@ -129,6 +132,7 @@ export async function onRequestGet({ request, env }) {
 
   return json({
     lang: lang,
+    model: model.name,
     considered: rows.length,
     indexed: done,
     chunks: chunksTotal,

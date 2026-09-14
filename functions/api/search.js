@@ -12,8 +12,10 @@ const MAX_PAGE = 50;
 const MAX_WORDS = 6;
 const SNIPPET = 220;
 
-const MODEL = '@cf/baai/bge-base-en-v1.5';
-const DIM = 768;
+const MODELS = {
+  en: { name: '@cf/baai/bge-base-en-v1.5', dim: 768 },
+  ru: { name: '@cf/baai/bge-m3', dim: 1024 }
+};
 const FLOOR = 0.55;
 const RELATIVE = 0.90;
 const MAX_MEANING = 40;
@@ -73,7 +75,9 @@ async function meaningHits(env, query, lang) {
   const index = await loadIndex(env, lang);
   if (!index.length) return null;
 
-  const res = await env.AI.run(MODEL, { text: [query] });
+  const model = MODELS[lang];
+  const DIM = model.dim;
+  const res = await env.AI.run(model.name, { text: [query] });
   const raw = res && res.data && res.data[0];
   if (!raw) return null;
 
