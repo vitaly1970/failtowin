@@ -20,6 +20,29 @@ const FLOOR = 0.55;
 const RELATIVE = 0.90;
 const MAX_MEANING = 40;
 
+const RERANK_MODEL = '@cf/baai/bge-reranker-base';
+const RERANK_POOL = 40;
+const RERANK_TEXT = 1500;
+
+const INTENT = new RegExp(
+  '^\\s*(?:' + [
+    "i\\s*(?:'|\u2019)?\\s*m\\s+(?:about|going|planning|thinking\\s+(?:of|about)|considering|trying)(?:\\s+to)?",
+    "i\\s+am\\s+(?:about|going|planning|thinking\\s+(?:of|about)|considering|trying)(?:\\s+to)?",
+    "i\\s+(?:want|plan|need|intend|hope)\\s+to",
+    "i\\s+(?:would|'d)\\s+like\\s+to",
+    "should\\s+i",
+    "(?:about|going|planning|want)\\s+to",
+    "thinking\\s+(?:of|about)",
+    "how\\s+to"
+  ].join('|') + ')\\s+',
+  'i'
+);
+
+function core(query) {
+  const cut = String(query || '').replace(INTENT, '').trim();
+  return cut || String(query || '').trim();
+}
+
 let cache = null;
 
 function pickLang(value) {
@@ -104,15 +127,71 @@ async function meaningHits(env, query, lang) {
   if (!scored.length) return [];
 
   scored.sort(function (a, b) { return b.score - a.score; });
+  return scored;
+}
+
+function byRelative(scored) {
+  if (!scored.length) return [];
   const top = scored[0].score;
   return scored.filter(function (x) { return x.score >= top * RELATIVE; }).slice(0, MAX_MEANING);
+}
+
+async function rerank(env, query, pool, lang) {
+  const ids = pool.map(function (x) { return x.id; });
+  const placeholders = ids.map(function (_, i) { return '?' + (i + 1); }).join(',');
+  const found = await env.DB.prepare(
+    'SELECT id, title_' + lang + ' AS title, substr(body_' + lang + ', 1, ' + RERANK_TEXT + ') AS body ' +
+    'FROM stories_published WHERE id IN (' + placeholders + ')'
+  ).bind(...ids).all();
+  const byId = {};
+  (found.results || []).forEach(function (row) { byId[row.id] = row; });
+  const kept = pool.filter(function (x) { return byId[x.id]; });
+  const res = await env.AI.run(RERANK_MODEL, {
+    query: query,
+    contexts: kept.map(function (x) {
+      const row = byId[x.id];
+      return { text: (row.title || '') + '. ' + (row.body || '') };
+    })
+  });
+  const list = (res && res.response) || [];
+  if (!list.length) throw new Error('empty rerank');
+  return list
+    .map(function (r) { return { id: kept[r.id].id, score: r.score }; })
+    .sort(function (a, b) { return b.score - a.score; });
+}
+
+function page_of(ordered, page, lang, debug) {
+  const total = ordered.length;
+  const offset = (page - 1) * PAGE_SIZE;
+  const slice = ordered.slice(offset, offset + PAGE_SIZE);
+  const items = slice.map(function (x) {
+    const item = {
+      slug: x.row.slug,
+      title: x.row.title,
+      snippet: x.row.snippet,
+      topic: x.row.topic,
+      date: x.row.published_at,
+      match: x.how
+    };
+    if (debug) item.score = x.score;
+    return item;
+  });
+  return json({
+    lang: lang,
+    page: page,
+    total: total,
+    has_more: offset + items.length < total,
+    items: items
+  });
 }
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const lang = pickLang(url.searchParams.get('lang'));
   const query = String(url.searchParams.get('q') || '').trim();
-  const terms = words(query);
+  const focus = core(query);
+  const terms = words(focus);
+  const debug = url.searchParams.get('debug') === '1';
 
   let page = parseInt(url.searchParams.get('page') || '1', 10);
   if (!Number.isFinite(page) || page < 1) page = 1;
@@ -131,10 +210,38 @@ export async function onRequestGet({ request, env }) {
 
   try {
     let meaning = null;
+    let how = 'meaning';
     try {
-      meaning = await meaningHits(env, query, lang);
+      const scored = await meaningHits(env, focus, lang);
+      if (scored && scored.length) {
+        try {
+          meaning = await rerank(env, focus, scored.slice(0, RERANK_POOL), lang);
+          how = 'rerank';
+        } catch (err) {
+          meaning = byRelative(scored);
+        }
+      } else {
+        meaning = scored;
+      }
     } catch (err) {
       meaning = null;
+    }
+
+    if (meaning && meaning.length) {
+      const ordered = [];
+      const ids = meaning.map(function (x) { return x.id; });
+      const placeholders = ids.map(function (_, i) { return '?' + (i + 1); }).join(',');
+      const meaningFound = await env.DB.prepare(
+        columns + 'FROM stories_published WHERE is_visible = 1 AND ' +
+        slug + ' IS NOT NULL AND id IN (' + placeholders + ')'
+      ).bind(...ids).all();
+      const byId = {};
+      (meaningFound.results || []).forEach(function (row) { byId[row.id] = row; });
+      meaning.forEach(function (hit) {
+        const row = byId[hit.id];
+        if (row) ordered.push({ row: row, score: hit.score, how: how });
+      });
+      return page_of(ordered, page, lang, debug);
     }
 
     const binds = [];
@@ -159,55 +266,10 @@ export async function onRequestGet({ request, env }) {
 
     const letterRows = letterFound.results || [];
 
-    let ordered = [];
-    if (meaning && meaning.length) {
-      const ids = meaning.map(function (x) { return x.id; });
-      const placeholders = ids.map(function (_, i) { return '?' + (i + 1); }).join(',');
-      const meaningFound = await env.DB.prepare(
-        columns + 'FROM stories_published WHERE is_visible = 1 AND ' +
-        slug + ' IS NOT NULL AND id IN (' + placeholders + ')'
-      ).bind(...ids).all();
-
-      const byId = {};
-      (meaningFound.results || []).forEach(function (row) { byId[row.id] = row; });
-      meaning.forEach(function (hit) {
-        const row = byId[hit.id];
-        if (row) ordered.push({ row: row, score: hit.score, how: 'meaning' });
-      });
-
-      const seen = {};
-      ordered.forEach(function (x) { seen[x.row.id] = true; });
-      letterRows.forEach(function (row) {
-        if (!seen[row.id]) ordered.push({ row: row, score: 0, how: 'letters' });
-      });
-    } else {
-      ordered = letterRows.map(function (row) {
-        return { row: row, score: 0, how: 'letters' };
-      });
-    }
-
-    const total = ordered.length;
-    const offset = (page - 1) * PAGE_SIZE;
-    const slice = ordered.slice(offset, offset + PAGE_SIZE);
-
-    const items = slice.map(function (x) {
-      return {
-        slug: x.row.slug,
-        title: x.row.title,
-        snippet: x.row.snippet,
-        topic: x.row.topic,
-        date: x.row.published_at,
-        match: x.how
-      };
+    const ordered = letterRows.map(function (row) {
+      return { row: row, score: 0, how: 'letters' };
     });
-
-    return json({
-      lang: lang,
-      page: page,
-      total: total,
-      has_more: offset + items.length < total,
-      items: items
-    });
+    return page_of(ordered, page, lang, debug);
   } catch (err) {
     return json({ error: 'search failed' }, 500);
   }
