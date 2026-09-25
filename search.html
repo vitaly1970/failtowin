@@ -325,7 +325,7 @@ function loadAdvice(query){
       list.innerHTML = '';
       d.items.forEach(function(it){
         var li = document.createElement('li');
-        var t = document.createElement('p'); t.className = 'adv-title'; t.textContent = it.title;
+        var t = document.createElement('p'); t.className = 'adv-title'; t.textContent = it.title.charAt(0).toUpperCase() + it.title.slice(1);
         var n = document.createElement('span'); n.className = 'adv-n';
         n.textContent = it.count + (it.count === 1 ? ' story' : ' stories');
         t.appendChild(n); li.appendChild(t);
