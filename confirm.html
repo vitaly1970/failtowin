@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon-180.png">
+<title>Confirmed — The Encyclopedia of Fuckups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.confirm{padding:40px 0 70px}
+.confirm-grid{display:grid;grid-template-columns:minmax(0,1fr) 40%;gap:30px 50px;align-items:center}
+.confirm-grid[hidden]{display:none}
+.confirm-col{min-width:0}
+h1{font-family:var(--serif);font-weight:800;font-size:clamp(32px,4vw,46px);line-height:1.06;letter-spacing:-.018em;margin:0 0 16px}
+.confirm p.text{font-size:17px;line-height:1.55;color:var(--body);margin:0 0 22px}
+.back-link{display:inline-flex;align-items:center;gap:10px;font-weight:500;font-size:15.5px;border-bottom:2px solid var(--accent);padding-bottom:3px}
+.confirm-art{margin:0}
+.confirm-art img{display:block;width:100%;height:auto}
+@media(max-width:900px){
+  .confirm-grid{grid-template-columns:1fr}
+  .confirm-art{order:-1;max-width:360px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="index.html">
+      <img src="assets/img/logo.jpeg" alt="The Encyclopedia of Fuckups">
+      <span class="brand-name">The Encyclopedia<br>of Fuckups</span>
+    </a>
+    <a class="nav-submit" href="submit.html">Submit a fuckup</a>
+  </div>
+</header>
+
+<main>
+<section class="confirm">
+  <div class="wrap confirm-grid" id="ok" hidden>
+    <div class="confirm-col">
+      <h1 id="ok-title">Confirmed.</h1>
+      <p class="text" id="ok-text">Someone who knows what they&rsquo;re doing will be in touch.</p>
+      <a class="back-link" href="index.html">Back to the encyclopedia</a>
+    </div>
+    <p class="confirm-art"><img src="assets/img/fedya-confirmed.png" alt="Fedya, the encyclopedia's cat, giving a thumbs up next to an open envelope. He says: confirmed, help is on the way."></p>
+  </div>
+
+  <div class="wrap confirm-grid" id="bad" hidden>
+    <div class="confirm-col">
+      <h1>This link didn&rsquo;t work.</h1>
+      <p class="text">Maybe it got cut off in the email. Copy the whole link from the email, or send the request again.</p>
+      <a class="back-link" href="help.html">Send it again</a>
+    </div>
+    <p class="confirm-art"><img src="assets/img/fedya-missing.png" alt="Fedya shrugging with both paws up next to a laptop. He says: well, that didn't work."></p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>The Encyclopedia of Fuckups &middot; 2026 &middot; <a href="about.html">About</a></span>
+    <span>Stories come from readers, interviews, podcasts and public posts. Each one is checked and structured before it goes live. <a href="submit.html">Submit a fuckup</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var t = (new URLSearchParams(location.search).get('t') || '').trim();
+  function show(id){ document.getElementById(id).hidden = false; }
+  if (!t){ show('bad'); return; }
+  fetch('/api/lead-confirm?t=' + encodeURIComponent(t))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.status === 'confirmed'){ show('ok'); return; }
+      if (d.status === 'already'){
+        document.getElementById('ok-title').textContent = 'Already confirmed.';
+        document.getElementById('ok-text').textContent = 'You\u2019re all set. Help is on the way.';
+        show('ok'); return;
+      }
+      show('bad');
+    })
+    .catch(function(){ show('bad'); });
+})();
+</script>
+
+</body>
+</html>

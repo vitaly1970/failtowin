@@ -56,6 +56,13 @@ h1{
 .missing-art img{display:block;width:100%;height:auto}
 
 
+.help-strip{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;
+  padding:18px 22px;font-family:var(--hand);font-size:26px;line-height:1.2;color:var(--ink);
+}
+.help-strip:hover{background:#fce2c8}
+.help-strip svg{flex:none}
 .comments{grid-column:1/-1;border-top:1px solid var(--line);margin-top:10px;padding-top:28px}
 .c-head{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:end;margin:0 0 18px}
 .c-head h2{font-family:var(--serif);font-weight:800;font-size:clamp(24px,2.6vw,32px);line-height:1.1;letter-spacing:-.012em;margin:0 0 8px}
@@ -148,6 +155,10 @@ h1{
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
       </a>
     </div>
+
+    <a class="help-strip" id="help-strip" href="help.html">In the same mess? Fedya knows a guy
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+    </a>
 
     <div class="comments" id="comments">
       <div class="c-head">
@@ -325,6 +336,8 @@ function draw(story){
   topline.appendChild(meta);
 
   document.getElementById('title').textContent = story.title;
+  document.getElementById('help-strip').href =
+    'help.html?from=' + encodeURIComponent(param('slug')) + '&topic=' + encodeURIComponent(story.topic || '');
   document.getElementById('byline').textContent =
     story.person ? story.person + ' told us this one' : 'Told to us anonymously';
 
