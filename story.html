@@ -33,15 +33,20 @@ h1{
 .fact b{display:block;font-weight:500;font-size:12.5px;color:var(--muted);margin:0 0 5px}
 .fact span{font-size:15px;line-height:1.45;color:var(--ink)}
 .cta{
-  grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+  grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px;
   border-top:1px solid var(--line);margin-top:10px;padding-top:22px;
 }
-.cta p{margin:0;font-family:var(--hand);font-size:23px;color:var(--ink-2)}
-.cta a{
+.cta-card{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.cta-card p{margin:0;font-family:var(--hand);font-size:23px;line-height:1.15;color:var(--ink-2)}
+.cta-card a{
   display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:#fff;
-  border-radius:999px;font-weight:600;font-size:14.5px;padding:12px 22px;
+  border-radius:999px;font-weight:600;font-size:14.5px;padding:11px 20px;white-space:nowrap;
 }
-.cta a:hover{background:#2c2c2c}
+.cta-card a:hover{background:#2c2c2c}
+.cta-card.help{background:var(--accent-soft);border-color:var(--accent)}
+.cta-card.help a{background:var(--accent);color:var(--ink)}
+.cta-card.help a:hover{background:#f2913f}
 .missing{padding:30px 0 50px}
 .missing-grid{display:grid;grid-template-columns:minmax(0,1fr) 46%;gap:40px;align-items:center}
 .missing-col{min-width:0}
@@ -56,15 +61,16 @@ h1{
 .missing-art img{display:block;width:100%;height:auto}
 
 
-.help-strip{
-  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:14px;
-  background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;
-  padding:18px 22px;font-family:var(--hand);font-size:26px;line-height:1.2;color:var(--ink);
-}
-.help-strip:hover{background:#fce2c8}
-.help-strip svg{flex:none}
-.comments{grid-column:1/-1;border-top:1px solid var(--line);margin-top:10px;padding-top:28px}
-.c-head{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:end;margin:0 0 18px}
+.talk{grid-column:1/-1;margin-top:18px}
+.tabs{display:inline-flex;gap:4px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px;margin:0 0 22px}
+.tabs button{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;cursor:pointer;
+  font:inherit;font-weight:600;font-size:14.5px;color:var(--muted);border-radius:999px;padding:9px 18px}
+.tabs button:hover{color:var(--ink)}
+.tabs button.on{background:var(--ink);color:#fff}
+.tabs .count{font-weight:500;opacity:.7}
+.tabs .prize{font-size:12px;font-weight:600;background:var(--accent);color:var(--ink);border-radius:999px;padding:2px 8px}
+.panel[hidden]{display:none}
+.c-head{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:24px;align-items:start;margin:0 0 20px}
 .c-head h2{font-family:var(--serif);font-weight:800;font-size:clamp(24px,2.6vw,32px);line-height:1.1;letter-spacing:-.012em;margin:0 0 8px}
 .c-head p{font-family:var(--hand);font-size:22px;color:var(--ink-2);margin:0}
 .c-head p.c-hint{font-family:var(--sans);font-size:14.5px;line-height:1.5;color:var(--body);margin:8px 0 0}
@@ -74,9 +80,9 @@ h1{
 .c-meta{font-size:12.5px;color:var(--muted);margin:0 0 6px}
 .c-meta b{font-weight:600;color:var(--ink)}
 .c-text{font-size:15px;line-height:1.55;color:var(--body);white-space:pre-line;margin:0}
-.c-state{display:flex;align-items:center;gap:18px;margin:0 0 22px}
+.c-state{display:flex;align-items:center;gap:16px;margin:0 0 18px;padding:12px 16px;border:1px dashed var(--line);border-radius:12px;background:#fff}
 .c-state[hidden]{display:none}
-.c-state img{display:block;width:180px;height:auto;flex:none}
+.c-state img{display:block;width:96px;height:auto;flex:none}
 .c-state p{font-size:15.5px;line-height:1.5;color:var(--body);margin:0}
 .c-form{display:grid;gap:10px}
 .c-form input,.c-form textarea{
@@ -94,7 +100,6 @@ h1{
 .c-row button:hover{background:#2c2c2c}
 .c-row button[disabled]{opacity:.5;cursor:default}
 .c-note{font-size:14px;color:var(--ink-2);margin:0}
-.tips{margin-top:34px}
 .c-item.best{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:center;border-color:var(--accent);background:var(--accent-soft)}
 .c-item.best img{display:block;width:100%;height:auto}
 .c-best{display:inline-block;font-size:12px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--accent);border-radius:999px;padding:2px 10px;margin:0 0 8px}
@@ -105,9 +110,13 @@ h1{
   .story-art{grid-column:1/-1;max-width:420px;margin:0}
 }
 @media(max-width:900px){
-  .c-head{grid-template-columns:1fr}
-  .c-head img{order:-1;max-width:340px}
-  .c-state img{width:130px}
+  .cta{grid-template-columns:1fr}
+  .c-head{grid-template-columns:1fr;gap:10px}
+  .c-head img{order:-1;max-width:220px}
+  .c-head p{line-height:1.25}
+  .c-state img{width:72px}
+  .tabs{display:flex}
+  .tabs button{flex:1;justify-content:center;padding:9px 10px}
   .c-item.best{grid-template-columns:80px minmax(0,1fr)}
   .missing-grid{grid-template-columns:1fr;gap:24px}
   .missing-art{order:-1;max-width:400px}
@@ -150,22 +159,32 @@ h1{
     <div class="facts" id="facts"></div>
 
     <div class="cta">
-      <p>Been there yourself?</p>
-      <a href="submit.html">Tell us your super unique story
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-      </a>
+      <div class="cta-card">
+        <p>Been there yourself?</p>
+        <a href="submit.html">Tell us your story
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <div class="cta-card help">
+        <p>In the same mess?</p>
+        <a id="help-link" href="help.html">Fedya knows a guy
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
     </div>
 
-    <a class="help-strip" id="help-strip" href="help.html">In the same mess? Fedya knows a guy
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-    </a>
+    <div class="talk">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="c" class="on">Comments <span class="count" id="c-count"></span></button>
+        <button type="button" role="tab" data-tab="t">Tips <span class="count" id="t-count"></span> <span class="prize">$200 prize</span></button>
+      </div>
 
-    <div class="comments" id="comments">
+    <div class="panel" id="comments">
       <div class="c-head">
         <div>
           <h2>Comments: armchair experts welcome</h2>
           <p>Everyone&rsquo;s an expert after the fact.</p>
-          <p class="c-hint">Jokes, sympathy and &ldquo;same thing happened to me&rdquo; go here. Actual fixes go in Tips below.</p>
+          <p class="c-hint">Jokes, sympathy and &ldquo;same thing happened to me&rdquo; go here. Actual fixes go in the Tips tab.</p>
         </div>
         <img src="assets/img/fedya-comments.png" alt="Fedya, the encyclopedia's cat, lounging in a beanbag with a bucket of popcorn in front of a laptop. He says: go on, I'm listening.">
       </div>
@@ -195,7 +214,7 @@ h1{
       </form>
     </div>
 
-    <div class="comments tips" id="tips" data-prize="$200">
+    <div class="panel" id="tips" data-prize="$200" hidden>
       <div class="c-head">
         <div>
           <h2>Tips: how to get out of this one</h2>
@@ -228,6 +247,7 @@ h1{
           <p class="c-note" id="t-note" role="status"></p>
         </div>
       </form>
+    </div>
     </div>
   </div>
 </section>
@@ -336,7 +356,7 @@ function draw(story){
   topline.appendChild(meta);
 
   document.getElementById('title').textContent = story.title;
-  document.getElementById('help-strip').href =
+  document.getElementById('help-link').href =
     'help.html?from=' + encodeURIComponent(param('slug')) + '&topic=' + encodeURIComponent(story.topic || '');
   document.getElementById('byline').textContent =
     story.person ? story.person + ' told us this one' : 'Told to us anonymously';
@@ -361,7 +381,7 @@ function draw(story){
 /* Comments and tips share one engine: prefix c- for comments, t- for tips. */
 var BLOCKS = {
   c: { kind: 'comment', rejected: 'Fedya didn\u2019t let this one through. Keep it clean and on topic.' },
-  t: { kind: 'tip', rejected: 'Fedya didn\u2019t let this one through. A tip should actually help. Just want to react? Comments are right above.' }
+  t: { kind: 'tip', rejected: 'Fedya didn\u2019t let this one through. A tip should actually help. Just want to react? Use the Comments tab.' }
 };
 var FAILED = 'That didn\u2019t go through. Fitting, really. Try again.';
 var SHORT = 'A bit more than that, please.';
@@ -406,6 +426,17 @@ function syncEmpty(p){
   var list = document.getElementById(p + '-list');
   var checking = !document.getElementById(p + '-checking').hidden;
   document.getElementById(p + '-empty').hidden = list.children.length > 0 || checking;
+  document.getElementById(p + '-count').textContent = list.children.length ? list.children.length : '';
+}
+
+function showTab(p){
+  Array.prototype.forEach.call(document.querySelectorAll('.tabs button'), function(b){
+    var on = b.getAttribute('data-tab') === p;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  document.getElementById('comments').hidden = p !== 'c';
+  document.getElementById('tips').hidden = p !== 't';
 }
 
 function loadBlock(p, slug){
@@ -472,6 +503,10 @@ function initBlocks(slug){
   var prizeText = prize();
   Array.prototype.forEach.call(document.querySelectorAll('.t-prize'), function(el){ el.textContent = prizeText; });
   ['c', 't'].forEach(function(p){ loadBlock(p, slug); bindBlock(p, slug); });
+  Array.prototype.forEach.call(document.querySelectorAll('.tabs button'), function(b){
+    b.addEventListener('click', function(){ showTab(b.getAttribute('data-tab')); });
+  });
+  if (location.hash === '#tips') showTab('t');
 }
 
 (function init(){
