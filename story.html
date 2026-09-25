@@ -56,11 +56,45 @@ h1{
 .missing-art img{display:block;width:100%;height:auto}
 
 
+.comments{grid-column:1/-1;border-top:1px solid var(--line);margin-top:10px;padding-top:28px}
+.c-head{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:end;margin:0 0 18px}
+.c-head h2{font-family:var(--serif);font-weight:800;font-size:clamp(24px,2.6vw,32px);line-height:1.1;letter-spacing:-.012em;margin:0 0 8px}
+.c-head p{font-family:var(--hand);font-size:22px;color:var(--ink-2);margin:0}
+.c-head img{display:block;width:100%;height:auto}
+.c-list{display:grid;gap:12px;margin:0 0 22px}
+.c-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.c-meta{font-size:12.5px;color:var(--muted);margin:0 0 6px}
+.c-meta b{font-weight:600;color:var(--ink)}
+.c-text{font-size:15px;line-height:1.55;color:var(--body);white-space:pre-line;margin:0}
+.c-state{display:flex;align-items:center;gap:18px;margin:0 0 22px}
+.c-state img{display:block;width:180px;height:auto;flex:none}
+.c-state p{font-size:15.5px;line-height:1.5;color:var(--body);margin:0}
+.c-form{display:grid;gap:10px}
+.c-form input,.c-form textarea{
+  width:100%;font:inherit;font-size:15px;color:var(--ink);background:#fff;
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+}
+.c-form textarea{min-height:110px;resize:vertical}
+.c-form input:focus,.c-form textarea:focus{outline:none;border-color:var(--accent)}
+.c-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.c-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.c-row button{
+  display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:#fff;border:0;cursor:pointer;
+  border-radius:999px;font:inherit;font-weight:600;font-size:14.5px;padding:12px 22px;
+}
+.c-row button:hover{background:#2c2c2c}
+.c-row button[disabled]{opacity:.5;cursor:default}
+.c-note{font-size:14px;color:var(--ink-2);margin:0}
+
+
 @media(max-width:1100px){
   .story-grid{grid-template-columns:minmax(0,1fr) 260px}
   .story-art{grid-column:1/-1;max-width:420px;margin:0}
 }
 @media(max-width:900px){
+  .c-head{grid-template-columns:1fr}
+  .c-head img{order:-1;max-width:340px}
+  .c-state img{width:130px}
   .missing-grid{grid-template-columns:1fr;gap:24px}
   .missing-art{order:-1;max-width:400px}
   .story-grid{grid-template-columns:1fr;gap:24px}
@@ -106,6 +140,40 @@ h1{
       <a href="submit.html">Tell us your super unique story
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
       </a>
+    </div>
+
+    <div class="comments" id="comments">
+      <div class="c-head">
+        <div>
+          <h2>Comments: armchair experts welcome</h2>
+          <p>Everyone&rsquo;s an expert after the fact.</p>
+        </div>
+        <img src="assets/img/fedya-comments.png" alt="Fedya, the encyclopedia's cat, lounging in a beanbag with a bucket of popcorn in front of a laptop. He says: go on, I'm listening.">
+      </div>
+
+      <div class="c-list" id="c-list"></div>
+
+      <div class="c-state" id="c-empty" hidden>
+        <img src="assets/img/fedya-no-comments.png" alt="Fedya sitting at a desk over a blank sheet of paper, pen ready. He says: somebody has to be first.">
+        <p>No comments yet. Be the first to say &ldquo;I told you so.&rdquo;</p>
+      </div>
+
+      <div class="c-state" id="c-checking" hidden>
+        <img src="assets/img/fedya-checking.png" alt="Fedya studying a sheet of paper through a magnifying glass. He says: checking for spam, and typos, mostly spam.">
+        <p id="c-checking-text">Got it. Fedya is reading it now. If it passes, it goes up.</p>
+      </div>
+
+      <form class="c-form" id="c-form" novalidate>
+        <label class="c-hp" aria-hidden="true">Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        <label for="c-name" class="c-hp">Your name</label>
+        <input id="c-name" name="name" type="text" maxlength="60" placeholder="Name (or stay a mystery)">
+        <label for="c-body" class="c-hp">Your comment</label>
+        <textarea id="c-body" name="body" maxlength="2000" placeholder="Been there? Saw it coming? Say it."></textarea>
+        <div class="c-row">
+          <button type="submit" id="c-send">Post it</button>
+          <p class="c-note" id="c-note" role="status"></p>
+        </div>
+      </form>
     </div>
   </div>
 </section>
@@ -234,6 +302,94 @@ function draw(story){
   });
 }
 
+/* Comments */
+function commentBox(c){
+  var box = document.createElement('div');
+  box.className = 'c-item';
+  var meta = document.createElement('p');
+  meta.className = 'c-meta';
+  var who = document.createElement('b');
+  who.textContent = c.name || 'Anonymous';
+  meta.appendChild(who);
+  var when = ago(c.date);
+  if (when) meta.appendChild(document.createTextNode(' \u00b7 ' + when));
+  var text = document.createElement('p');
+  text.className = 'c-text';
+  text.textContent = c.body;
+  box.appendChild(meta);
+  box.appendChild(text);
+  return box;
+}
+
+function syncEmpty(){
+  var list = document.getElementById('c-list');
+  var checking = !document.getElementById('c-checking').hidden;
+  document.getElementById('c-empty').hidden = list.children.length > 0 || checking;
+}
+
+function loadComments(slug){
+  fetch('/api/comments?slug=' + encodeURIComponent(slug))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var list = document.getElementById('c-list');
+      list.innerHTML = '';
+      (data.comments || []).forEach(function(c){ list.appendChild(commentBox(c)); });
+      syncEmpty();
+    })
+    .catch(function(){ syncEmpty(); });
+}
+
+function bindCommentForm(slug){
+  var form = document.getElementById('c-form');
+  var note = document.getElementById('c-note');
+  var send = document.getElementById('c-send');
+  var checking = document.getElementById('c-checking');
+  var checkingText = document.getElementById('c-checking-text');
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    note.textContent = '';
+    var body = form.body.value.trim();
+    if (body.length < 10){ note.textContent = 'A bit more than that, please.'; form.body.focus(); return; }
+
+    send.disabled = true;
+    checkingText.textContent = 'Got it. Fedya is reading it now. If it passes, it goes up.';
+    checking.hidden = false;
+    syncEmpty();
+
+    fetch('/api/comments', {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({ slug: slug, name: form.name.value.trim(), body: body, website: form.website.value })
+    })
+      .then(function(r){ return r.json().then(function(d){ return {ok: r.ok, data: d}; }); })
+      .then(function(res){
+        var d = res.data || {};
+        if (!res.ok){
+          checking.hidden = true;
+          note.textContent = d.error === 'too short' ? 'A bit more than that, please.'
+            : 'That didn\u2019t go through. Fitting, really. Try again.';
+          return;
+        }
+        if (d.status === 'approved' && d.comment){
+          checking.hidden = true;
+          document.getElementById('c-list').appendChild(commentBox(d.comment));
+          form.reset();
+        } else if (d.status === 'rejected'){
+          checking.hidden = true;
+          note.textContent = 'Fedya didn\u2019t let this one through. Keep it clean and on topic.';
+        } else {
+          form.reset();
+        }
+      })
+      .catch(function(){
+        checking.hidden = true;
+        note.textContent = 'That didn\u2019t go through. Fitting, really. Try again.';
+      })
+      .then(function(){ send.disabled = false; syncEmpty(); });
+  });
+}
+
 (function init(){
   var slug = param('slug');
   if (!slug){ showMissing(); return; }
@@ -246,6 +402,8 @@ function draw(story){
     .then(function(story){
       if (!story || story.error) throw new Error('not found');
       draw(story);
+      loadComments(slug);
+      bindCommentForm(slug);
     })
     .catch(function(){
       showMissing();
