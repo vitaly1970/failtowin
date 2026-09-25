@@ -1,6 +1,6 @@
 /* Fedya's advice: a summary of where people usually got burned doing what the reader plans.
    GET ?q=...&lang=en|ru
-   Finds every matching story (meaning + letters, no page cap), counts mistake types,
+   Finds every story close in meaning (no page cap), counts mistake types,
    asks the model to phrase the top ones, caches the answer per query. */
 
 const MODELS = {
@@ -9,6 +9,7 @@ const MODELS = {
 };
 const WRITE_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const FLOOR = 0.55;
+const STRONG = 0.60;
 const RELATIVE = 0.90;
 const MIN_STORIES = 5;
 const TOP_TYPES = 5;
@@ -77,24 +78,7 @@ async function meaningIds(env, query, lang) {
   if (!scored.length) return [];
   scored.sort((a, b) => b.score - a.score);
   const top = scored[0].score;
-  meaningIds.last = { top: top, n60: scored.filter(x => x.score >= 0.60).length, n65: scored.filter(x => x.score >= 0.65).length,
-    r80: scored.filter(x => x.score >= top * 0.80).length, r85: scored.filter(x => x.score >= top * 0.85).length, all: scored.length };
-  return scored.filter(x => x.score >= top * RELATIVE).map(x => x.id);
-}
-
-async function letterIds(env, terms, lang) {
-  if (!terms.length) return [];
-  const title = 'title_' + lang, body = 'body_' + lang;
-  const binds = [];
-  const clauses = terms.map(function (w) {
-    binds.push('%' + w + '%');
-    const n = binds.length;
-    return '(lower(' + title + ') LIKE ?' + n + ' OR lower(' + body + ') LIKE ?' + n + " OR replace(topic,'-',' ') LIKE ?" + n + ')';
-  });
-  const found = await env.DB.prepare(
-    'SELECT id FROM stories_published WHERE is_visible = 1 AND ' + title + ' IS NOT NULL AND ' + clauses.join(' AND ')
-  ).bind(...binds).all();
-  return (found.results || []).map(r => r.id);
+  return scored.filter(x => x.score >= STRONG || x.score >= top * RELATIVE).map(x => x.id);
 }
 
 function parseJson(text) {
@@ -140,9 +124,7 @@ export async function onRequestGet({ request, env }) {
   try {
     let ids = [];
     try { ids = await meaningIds(env, query, lang); } catch (e) { ids = []; }
-    const letters = await letterIds(env, terms, lang);
-    const seen = {};
-    ids = ids.concat(letters).filter(id => (seen[id] ? false : (seen[id] = true)));
+
     if (ids.length < MIN_STORIES) return json({ show: false, total: ids.length });
 
     const slug = 'url_path_' + lang, title = 'title_' + lang, lesson = 'lesson_' + lang;
@@ -169,16 +151,8 @@ export async function onRequestGet({ request, env }) {
     const groups = Object.keys(byType).map(k => byType[k]).sort((a, b) => b.count - a.count).slice(0, TOP_TYPES);
     if (!groups.length) return json({ show: false, total: ids.length });
 
-    let text = null, why = '';
-    try { text = await write(env, query, groups); } catch (e) { text = null; why = String(e && e.message || e); }
-    if (url.searchParams.get('debug') === '1') {
-      let rawOut = '';
-      try {
-        const o = await env.AI.run(WRITE_MODEL, { messages: [{ role: 'user', content: 'Answer with JSON only: {"ok":true}' }], max_tokens: 20 });
-        rawOut = JSON.stringify(o).slice(0, 500);
-      } catch (e) { rawOut = 'ERR ' + String(e && e.message || e); }
-      return json({ dist: meaningIds.last, why: why, probe: rawOut, meaning: ids.length - letters.length, letters: letters.length });
-    }
+    let text = null;
+    try { text = await write(env, query, groups); } catch (e) { text = null; }
     const items = groups.map(function (g, i) {
       const t = text && text.items && text.items[i] || {};
       return {
