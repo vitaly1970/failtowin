@@ -9,7 +9,7 @@ const MODELS = {
 };
 const WRITE_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const FLOOR = 0.55;
-const STRONG = 0.60;
+const STRONG = 0.63;
 const RELATIVE = 0.90;
 const MIN_STORIES = 5;
 const TOP_TYPES = 5;
@@ -94,19 +94,22 @@ async function write(env, query, groups) {
       g.examples.map(e => '   - Story "' + e.title + '". Lesson: ' + (e.lesson || '')).join('\n');
   }).join('\n');
   const prompt =
-    'A reader is planning to: "' + query + '". Below are the most common mistakes people made doing this, ' +
-    'with example stories. For each mistake, in the same order, write: "title" - the mistake in 3 to 8 plain words, ' +
-    'and "check" - one short sentence starting with "Check first:" saying what to verify before starting. ' +
-    'Then write "checks" - exactly three short things to check before going ahead, each under 12 words. ' +
-    'Plain, friendly English, a little wry, no advice you cannot back with the stories. ' +
-    'Answer with JSON only: {"items":[{"title":"","check":""}],"checks":["","",""]}\n\n' + lines;
+    'A reader is planning to: "' + query + '". Below are the most common mistakes people made in similar situations, ' +
+    'with example stories.\n\n' + lines + '\n\n' +
+    'Write the answer as JSON with two keys.\n' +
+    '"items": an array with one object per mistake above, in the same order. Each object has "title" ' +
+    '(the mistake in 3 to 8 plain words, sentence case) and "check" (one short sentence starting with "Check first:" ' +
+    'saying what to verify before starting).\n' +
+    '"checks": an array of exactly three short things to check before going ahead, each under 12 words. ' +
+    'This array is at the top level, not inside items.\n' +
+    'Plain, friendly English, a little wry. Answer with the JSON only, like this:\n' +
+    '{"items":[{"title":"...","check":"Check first: ..."}],"checks":["...","...","..."]}';
   const out = await env.AI.run(WRITE_MODEL, {
     messages: [{ role: 'user', content: prompt }],
-    max_tokens: 700,
+    max_tokens: 1200,
     temperature: 0.2
   });
   const textOut = out && (out.response || (out.choices && out.choices[0] && out.choices[0].message && out.choices[0].message.content));
-  write.last = typeof textOut === 'string' ? textOut.slice(0, 800) : JSON.stringify(textOut || out).slice(0, 800);
   if (textOut && typeof textOut === 'object') return textOut;
   return parseJson(textOut);
 }
@@ -155,8 +158,7 @@ export async function onRequestGet({ request, env }) {
     if (!groups.length) return json({ show: false, total: ids.length });
 
     let text = null;
-    try { text = await write(env, query, groups); } catch (e) { text = null; write.last = 'ERR ' + String(e && e.message || e); }
-    if (url.searchParams.get('debug') === '1') return json({ raw: write.last });
+    try { text = await write(env, query, groups); } catch (e) { text = null; }
     const items = groups.map(function (g, i) {
       const t = text && text.items && text.items[i] || {};
       return {
@@ -166,7 +168,9 @@ export async function onRequestGet({ request, env }) {
         stories: g.examples.map(e => ({ slug: e.slug, title: e.title }))
       };
     });
-    const checks = text && Array.isArray(text.checks) ? text.checks.slice(0, 3).filter(Boolean) : [];
+    let checks = text && Array.isArray(text.checks) ? text.checks : [];
+    if (!checks.length && text && text.items && text.items[0] && Array.isArray(text.items[0].checks)) checks = text.items[0].checks;
+    checks = checks.slice(0, 3).filter(Boolean);
     const body = { show: true, total: rows.length, items: items, checks: checks };
 
     if (text) {
