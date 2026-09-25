@@ -1,21 +1,14 @@
 /* Fedya's advice: a summary of where people usually got burned doing what the reader plans.
    GET ?q=...&lang=en|ru
-   Finds every story close in meaning (no page cap), counts mistake types,
+   Takes the same relevant stories as search (_shared/relevance.js), counts mistake types,
    asks the model to phrase the top ones, caches the answer per query. */
 
-const MODELS = {
-  en: { name: '@cf/baai/bge-base-en-v1.5', dim: 768 },
-  ru: { name: '@cf/baai/bge-m3', dim: 1024 }
-};
+import { relevantStories, pickLang } from '../_shared/relevance.js';
+
 const WRITE_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
-const FLOOR = 0.55;
-const STRONG = 0.63;
-const RELATIVE = 0.90;
 const MIN_STORIES = 5;
 const TOP_TYPES = 5;
 const MAX_WORDS = 6;
-
-let cache = null;
 
 function json(body, status) {
   return new Response(JSON.stringify(body), {
@@ -24,61 +17,8 @@ function json(body, status) {
   });
 }
 
-function pickLang(v) { return v === 'ru' ? 'ru' : 'en'; }
-
 function words(q) {
   return String(q || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim().split(' ').filter(Boolean).slice(0, MAX_WORDS);
-}
-
-function unpack(packed) {
-  const binary = atob(packed);
-  const bytes = new Int8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    const c = binary.charCodeAt(i);
-    bytes[i] = c > 127 ? c - 256 : c;
-  }
-  return bytes;
-}
-
-async function loadIndex(env, lang) {
-  if (cache && cache.lang === lang && Date.now() - cache.at < 300000) return cache.rows;
-  const col = 'emb_' + lang;
-  const found = await env.DB.prepare(
-    'SELECT id, ' + col + ' AS emb FROM stories_published WHERE is_visible = 1 AND ' + col + ' IS NOT NULL AND ' + col + " <> ''"
-  ).all();
-  const rows = (found.results || []).map(r => ({ id: r.id, vec: unpack(r.emb) }));
-  cache = { lang: lang, rows: rows, at: Date.now() };
-  return rows;
-}
-
-async function meaningIds(env, query, lang) {
-  const index = await loadIndex(env, lang);
-  if (!index.length) return [];
-  const DIM = MODELS[lang].dim;
-  const res = await env.AI.run(MODELS[lang].name, { text: [query] });
-  const raw = res && res.data && res.data[0];
-  if (!raw) return [];
-  let norm = 0;
-  for (let d = 0; d < DIM; d++) norm += raw[d] * raw[d];
-  norm = Math.sqrt(norm) || 1;
-  const q = new Float32Array(DIM);
-  for (let d = 0; d < DIM; d++) q[d] = raw[d] / norm;
-  const scored = [];
-  for (const row of index) {
-    const count = Math.floor(row.vec.length / DIM);
-    let best = -1;
-    for (let c = 0; c < count; c++) {
-      let dot = 0; const base = c * DIM;
-      for (let d = 0; d < DIM; d++) dot += q[d] * row.vec[base + d];
-      dot = dot / 127;
-      if (dot > best) best = dot;
-    }
-    if (best >= FLOOR) scored.push({ id: row.id, score: best });
-  }
-  if (!scored.length) return [];
-  scored.sort((a, b) => b.score - a.score);
-  const top = scored[0].score;
-  return scored.filter(x => x.score >= STRONG || x.score >= top * RELATIVE).map(x => x.id);
 }
 
 function parseJson(text) {
@@ -128,8 +68,9 @@ export async function onRequestGet({ request, env }) {
   } catch (e) { /* no cache */ }
 
   try {
-    let ids = [];
-    try { ids = await meaningIds(env, query, lang); } catch (e) { ids = []; }
+    let hits = [];
+    try { hits = await relevantStories(env, query, lang); } catch (e) { hits = []; }
+    const ids = hits.map(x => x.id);
 
     if (ids.length < MIN_STORIES) return json({ show: false, total: ids.length });
 
@@ -140,12 +81,13 @@ export async function onRequestGet({ request, env }) {
       const ph = part.map((_, k) => '?' + (k + 1)).join(',');
       const found = await env.DB.prepare(
         'SELECT s.id, s.' + slug + ' AS slug, s.' + title + ' AS title, s.' + lesson + ' AS lesson, ' +
-        's.mistake_type_id AS type_id, t.label AS label FROM stories_published s ' +
+        's.mistake_type_id AS type_id, s.interest AS interest, t.label AS label FROM stories_published s ' +
         'LEFT JOIN mistake_types t ON t.id = s.mistake_type_id WHERE s.id IN (' + ph + ')'
       ).bind(...part).all();
       rows.push.apply(rows, found.results || []);
     }
 
+    rows.sort((a, b) => (b.interest == null ? 50 : b.interest) - (a.interest == null ? 50 : a.interest));
     const byType = {};
     rows.forEach(function (r) {
       if (!r.type_id || !r.slug) return;
