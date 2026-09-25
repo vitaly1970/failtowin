@@ -43,6 +43,16 @@ h1{
   border-radius:999px;font-weight:600;font-size:14px;padding:9px 18px;white-space:nowrap;
 }
 .cta-card a:hover{background:#2c2c2c}
+.metoo{flex-direction:column;align-items:flex-start;gap:6px}
+.metoo-btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font:inherit;font-weight:600;font-size:14px;color:var(--ink);
+  background:#fff;border:1.5px solid var(--ink);border-radius:999px;padding:8px 16px;white-space:nowrap}
+.metoo-btn:hover{background:var(--accent-soft)}
+.metoo-btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.metoo-btn[disabled]{opacity:.6;cursor:default}
+.metoo-n{font-weight:600;font-size:12px;background:var(--ink);color:#fff;border-radius:999px;padding:1px 8px}
+.metoo-n:empty{display:none}
+.metoo-note{font-family:var(--hand);font-size:19px;color:var(--ink-2);margin:0;min-height:0}
+.metoo-note:empty{display:none}
 .cta-card.help a{background:var(--accent);color:var(--ink)}
 .cta-card.help a:hover{background:#f2913f}
 .missing{padding:30px 0 50px}
@@ -159,6 +169,14 @@ h1{
     <div class="facts" id="facts"></div>
 
     <div class="cta">
+      <div class="cta-card metoo">
+        <button type="button" class="metoo-btn" id="metoo-btn" aria-pressed="false">
+          <span class="metoo-mark" aria-hidden="true">&#9995;</span>
+          <span>Same thing happened to me</span>
+          <span class="metoo-n" id="metoo-n"></span>
+        </button>
+        <p class="metoo-note" id="metoo-note" role="status"></p>
+      </div>
       <div class="cta-card">
         <p>Been there yourself?</p>
         <a href="submit.html">Tell us your super unique story
@@ -509,6 +527,45 @@ function initBlocks(slug){
   if (location.hash === '#tips') showTab('t');
 }
 
+/* Same thing happened to me */
+function metooVoter(){
+  var v = '';
+  try { v = localStorage.getItem('ftw_voter') || ''; } catch (e) {}
+  if (!v){
+    v = Array.from(crypto.getRandomValues(new Uint8Array(12)), function(b){ return ('0' + b.toString(16)).slice(-2); }).join('');
+    try { localStorage.setItem('ftw_voter', v); } catch (e) {}
+  }
+  return v;
+}
+function metooShow(d, justPressed){
+  var btn = document.getElementById('metoo-btn');
+  var n = document.getElementById('metoo-n');
+  var note = document.getElementById('metoo-note');
+  n.textContent = d.count ? d.count : '';
+  btn.setAttribute('aria-pressed', d.mine ? 'true' : 'false');
+  if (!justPressed){ note.textContent = ''; return; }
+  if (!d.mine){ note.textContent = ''; return; }
+  note.textContent = d.count <= 1 ? 'You\u2019re the first to admit it. Brave.'
+    : 'You\u2019re not alone. ' + d.count + ' people have been here too.';
+}
+function initMetoo(slug){
+  var voter = metooVoter();
+  var btn = document.getElementById('metoo-btn');
+  fetch('/api/metoo?slug=' + encodeURIComponent(slug) + '&voter=' + voter)
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if (d && !d.error) metooShow(d, false); })
+    .catch(function(){});
+  btn.addEventListener('click', function(){
+    btn.disabled = true;
+    fetch('/api/metoo', { method: 'POST', headers: {'content-type': 'application/json'},
+      body: JSON.stringify({ slug: slug, voter: voter }) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if (d && !d.error) metooShow(d, true); })
+      .catch(function(){})
+      .then(function(){ btn.disabled = false; });
+  });
+}
+
 (function init(){
   var slug = param('slug');
   if (!slug){ showMissing(); return; }
@@ -522,6 +579,7 @@ function initBlocks(slug){
       if (!story || story.error) throw new Error('not found');
       draw(story);
       initBlocks(slug);
+      initMetoo(slug);
     })
     .catch(function(){
       showMissing();
