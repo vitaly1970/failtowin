@@ -73,9 +73,13 @@ export async function relevantStories(env, query, lang) {
   const cut = Math.min(STRONG, top * RELATIVE);
   const kept = scored.filter(x => x.score >= cut);
   const span = Math.max(top - cut, 0.0001);
+  // interest scores sit in a narrow band, so stretch them over the kept set
+  const known = kept.filter(x => x.interest != null).map(x => x.interest);
+  const iMin = known.length ? Math.min.apply(null, known) : 0;
+  const iSpan = known.length ? Math.max(Math.max.apply(null, known) - iMin, 1) : 1;
   kept.forEach(function (x) {
     const rel = (x.score - cut) / span;
-    const intr = (x.interest == null ? 50 : x.interest) / 100;
+    const intr = x.interest == null ? 0.5 : (x.interest - iMin) / iSpan;
     x.rank = W_RELEVANCE * rel + W_INTEREST * intr;
   });
   kept.sort((a, b) => b.rank - a.rank);
