@@ -60,13 +60,16 @@ h1{
 
 
 .talk{grid-column:1/-1;margin-top:26px}
-.tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);margin:0 0 18px}
-.tabs button{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;cursor:pointer;
-  font:inherit;font-weight:600;font-size:15px;color:var(--muted);padding:0 0 10px;margin:0 0 -1px;border-bottom:2px solid transparent}
-.tabs button:hover{color:var(--ink)}
-.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs{display:flex;gap:6px;align-items:flex-end;position:relative;z-index:1}
+.tabs button{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  font:inherit;font-weight:600;font-size:15px;color:var(--muted);
+  background:#F1EEE9;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;
+  padding:11px 20px 10px;margin:0 0 -1px}
+.tabs button:hover{color:var(--ink);background:#EBE7E1}
+.tabs button.on{color:var(--ink);background:#fff;padding-bottom:11px;box-shadow:inset 0 3px 0 var(--accent)}
 .tabs .count{font-weight:500;opacity:.7}
 .tabs .prize{font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:1px 7px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:0 12px 12px 12px;padding:22px 24px 24px}
 .panel[hidden]{display:none}
 .c-head{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:20px;align-items:start;margin:0 0 14px}
 .c-head h2{font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.2;letter-spacing:-.005em;margin:0 0 4px}
@@ -84,7 +87,7 @@ h1{
 .c-state p{font-size:14.5px;line-height:1.5;color:var(--muted);margin:0}
 .c-form{display:grid;gap:8px}
 .c-form input,.c-form textarea{
-  width:100%;font:inherit;font-size:14.5px;color:var(--ink);background:#fff;
+  width:100%;font:inherit;font-size:14.5px;color:var(--ink);background:var(--paper);
   border:1px solid var(--line);border-radius:8px;padding:9px 12px;
 }
 .c-form textarea{min-height:72px;resize:vertical}
@@ -113,6 +116,8 @@ h1{
   .c-head p{line-height:1.25}
   .c-state img{width:56px}
   .c-item.best{grid-template-columns:64px minmax(0,1fr)}
+  .panel{padding:16px 14px 18px}
+  .tabs button{padding:10px 14px 9px}
   .missing-grid{grid-template-columns:1fr;gap:24px}
   .missing-art{order:-1;max-width:400px}
   .story-grid{grid-template-columns:1fr;gap:24px}
