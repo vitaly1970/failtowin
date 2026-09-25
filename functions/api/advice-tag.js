@@ -5,7 +5,7 @@
 
 const LABEL_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const EMBED_MODEL = '@cf/baai/bge-base-en-v1.5';
-const SAME_TYPE = 0.82;
+const SAME_TYPE = 0.75;
 
 function json(body, status) {
   return new Response(JSON.stringify(body), {
@@ -87,17 +87,22 @@ async function stepTypes(env) {
 
   await env.DB.prepare('UPDATE stories_published SET mistake_type_id = NULL').run();
   await env.DB.prepare('DELETE FROM mistake_types').run();
+  const writes = [];
   let typed = 0;
-  for (const g of groups) {
+  groups.forEach(function (g, n) {
+    const typeId = n + 1;
     const ids = [];
     g.members.forEach(i => ids.push.apply(ids, idsByLabel[labels[i].key]));
-    const ins = await env.DB.prepare('INSERT INTO mistake_types (label, stories) VALUES (?1, ?2)')
-      .bind(labels[g.head].text, ids.length).run();
-    const typeId = ins.meta.last_row_id;
-    const ups = ids.map(id => env.DB.prepare('UPDATE stories_published SET mistake_type_id = ?1 WHERE id = ?2').bind(typeId, id));
-    for (let k = 0; k < ups.length; k += 100) await env.DB.batch(ups.slice(k, k + 100));
+    writes.push(env.DB.prepare('INSERT INTO mistake_types (id, label, stories) VALUES (?1, ?2, ?3)')
+      .bind(typeId, labels[g.head].text, ids.length));
+    for (let k = 0; k < ids.length; k += 90) {
+      const part = ids.slice(k, k + 90);
+      writes.push(env.DB.prepare('UPDATE stories_published SET mistake_type_id = ?1 WHERE id IN (' +
+        part.map((_, j) => '?' + (j + 2)).join(',') + ')').bind(typeId, ...part));
+    }
     typed += ids.length;
-  }
+  });
+  for (let k = 0; k < writes.length; k += 200) await env.DB.batch(writes.slice(k, k + 200));
   await env.DB.prepare('DELETE FROM advice_cache').run();
   return { labels: labels.length, types: groups.length, stories: typed };
 }
