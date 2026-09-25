@@ -105,7 +105,10 @@ async function write(env, query, groups) {
     max_tokens: 700,
     temperature: 0.2
   });
-  return parseJson(out && (out.response || (out.choices && out.choices[0] && out.choices[0].message && out.choices[0].message.content)));
+  const textOut = out && (out.response || (out.choices && out.choices[0] && out.choices[0].message && out.choices[0].message.content));
+  write.last = typeof textOut === 'string' ? textOut.slice(0, 800) : JSON.stringify(textOut || out).slice(0, 800);
+  if (textOut && typeof textOut === 'object') return textOut;
+  return parseJson(textOut);
 }
 
 export async function onRequestGet({ request, env }) {
@@ -152,7 +155,8 @@ export async function onRequestGet({ request, env }) {
     if (!groups.length) return json({ show: false, total: ids.length });
 
     let text = null;
-    try { text = await write(env, query, groups); } catch (e) { text = null; }
+    try { text = await write(env, query, groups); } catch (e) { text = null; write.last = 'ERR ' + String(e && e.message || e); }
+    if (url.searchParams.get('debug') === '1') return json({ raw: write.last });
     const items = groups.map(function (g, i) {
       const t = text && text.items && text.items[i] || {};
       return {
