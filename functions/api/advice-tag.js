@@ -63,10 +63,15 @@ async function rate(env, row) {
     'Be strict: an ordinary story gets 3 to 5. Answer with JSON only, like {"unusual":5,"stakes":5,"twist":5,"lesson":5}.\n\n' +
     'Title: ' + (row.title || '') + '\nStory: ' + String(row.body || '').slice(0, 2500);
   const out = await env.AI.run(LABEL_MODEL, { messages: [{ role: 'user', content: prompt }], max_tokens: 60, temperature: 0 });
-  const t = answerText(out);
-  const a = t.indexOf('{'), b = t.lastIndexOf('}');
-  if (a < 0 || b <= a) return null;
-  let j; try { j = JSON.parse(t.slice(a, b + 1)); } catch (e) { return null; }
+  let j = null;
+  const r = out && out.response;
+  if (r && typeof r === 'object') j = r;
+  else {
+    const t = answerText(out);
+    const a = t.indexOf('{'), b = t.lastIndexOf('}');
+    if (a < 0 || b <= a) { rate.last = t.slice(0, 200); return null; }
+    try { j = JSON.parse(t.slice(a, b + 1)); } catch (e) { rate.last = t.slice(0, 200); return null; }
+  }
   const v = k => Math.min(10, Math.max(1, Number(j[k]) || 0));
   if (!j.unusual || !j.stakes || !j.twist || !j.lesson) return null;
   // weights: unusual 30, stakes 30, twist 20, lesson 20
@@ -87,7 +92,7 @@ async function stepInterest(env, limit) {
     updates.push(env.DB.prepare('UPDATE stories_published SET interest = ?1 WHERE id = ?2').bind(n, row.id));
   }
   if (updates.length) await env.DB.batch(updates);
-  return { done: updates.length, failed: failed };
+  return { done: updates.length, failed: failed, sample: failed ? (rate.last || '') : undefined };
 }
 
 async function stepTypes(env) {
