@@ -1,0 +1,126 @@
+/* Tags stories with the kind of mistake, for Fedya's advice.
+   POST ?step=raw&limit=20   next untagged stories get a short mistake label from the model
+   POST ?step=types          all labels are grouped by meaning into mistake types
+   GET                       progress */
+
+const LABEL_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const EMBED_MODEL = '@cf/baai/bge-base-en-v1.5';
+const SAME_TYPE = 0.82;
+
+function json(body, status) {
+  return new Response(JSON.stringify(body), {
+    status: status || 200,
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
+  });
+}
+
+async function label(env, row) {
+  const prompt =
+    'Below is a short breakdown of a true story about a personal mistake. ' +
+    'Name the mistake itself as a short generic action, 3 to 7 words, in plain English, ' +
+    'written so the same kind of mistake in other stories gets the same wording. ' +
+    'Examples: "Paid a large deposit upfront", "Skipped a written contract", "Ignored early warning signs", ' +
+    '"Trusted a seller without checking". No names, no places, no details. Answer with the label only.\n\n' +
+    'Title: ' + (row.title || '') + '\nPoint of no return: ' + (row.what || '') +
+    '\nWhat I would do differently: ' + (row.lesson || '');
+  const out = await env.AI.run(LABEL_MODEL, {
+    messages: [{ role: 'user', content: prompt }],
+    max_tokens: 24,
+    temperature: 0
+  });
+  return String((out && out.response) || '').split('\n')[0].replace(/^["'\s]+|["'.\s]+$/g, '').slice(0, 80);
+}
+
+async function stepRaw(env, limit) {
+  const rows = (await env.DB.prepare(
+    'SELECT id, COALESCE(title_en, title_ru) AS title, COALESCE(what_happened_en, what_happened_ru) AS what, ' +
+    'COALESCE(lesson_en, lesson_ru) AS lesson FROM stories_published ' +
+    'WHERE mistake_raw IS NULL ORDER BY id LIMIT ?1'
+  ).bind(limit).all()).results || [];
+  const updates = [];
+  let failed = 0;
+  for (const row of rows) {
+    let text = '';
+    try { text = await label(env, row); } catch (e) { text = ''; }
+    if (!text) { failed++; continue; }
+    updates.push(env.DB.prepare('UPDATE stories_published SET mistake_raw = ?1 WHERE id = ?2').bind(text, row.id));
+  }
+  if (updates.length) await env.DB.batch(updates);
+  return { done: updates.length, failed: failed };
+}
+
+async function stepTypes(env) {
+  const rows = (await env.DB.prepare(
+    "SELECT id, mistake_raw FROM stories_published WHERE mistake_raw IS NOT NULL AND mistake_raw <> ''"
+  ).all()).results || [];
+  const labels = [];
+  const idsByLabel = {};
+  rows.forEach(function (r) {
+    const key = r.mistake_raw.toLowerCase();
+    if (!idsByLabel[key]) { idsByLabel[key] = []; labels.push({ key: key, text: r.mistake_raw }); }
+    idsByLabel[key].push(r.id);
+  });
+
+  const vecs = [];
+  for (let i = 0; i < labels.length; i += 100) {
+    const res = await env.AI.run(EMBED_MODEL, { text: labels.slice(i, i + 100).map(l => l.text) });
+    (res.data || []).forEach(function (v) {
+      let n = 0; for (let d = 0; d < v.length; d++) n += v[d] * v[d];
+      n = Math.sqrt(n) || 1;
+      vecs.push(v.map(x => x / n));
+    });
+  }
+
+  // biggest labels first so they become the name of their group
+  const order = labels.map((l, i) => i).sort((a, b) => idsByLabel[labels[b].key].length - idsByLabel[labels[a].key].length);
+  const groups = [];
+  order.forEach(function (i) {
+    let best = -1, bestG = null;
+    groups.forEach(function (g) {
+      let dot = 0; const c = vecs[g.head];
+      for (let d = 0; d < c.length; d++) dot += c[d] * vecs[i][d];
+      if (dot > best) { best = dot; bestG = g; }
+    });
+    if (bestG && best >= SAME_TYPE) bestG.members.push(i);
+    else groups.push({ head: i, members: [i] });
+  });
+
+  await env.DB.prepare('UPDATE stories_published SET mistake_type_id = NULL').run();
+  await env.DB.prepare('DELETE FROM mistake_types').run();
+  let typed = 0;
+  for (const g of groups) {
+    const ids = [];
+    g.members.forEach(i => ids.push.apply(ids, idsByLabel[labels[i].key]));
+    const ins = await env.DB.prepare('INSERT INTO mistake_types (label, stories) VALUES (?1, ?2)')
+      .bind(labels[g.head].text, ids.length).run();
+    const typeId = ins.meta.last_row_id;
+    const ups = ids.map(id => env.DB.prepare('UPDATE stories_published SET mistake_type_id = ?1 WHERE id = ?2').bind(typeId, id));
+    for (let k = 0; k < ups.length; k += 100) await env.DB.batch(ups.slice(k, k + 100));
+    typed += ids.length;
+  }
+  await env.DB.prepare('DELETE FROM advice_cache').run();
+  return { labels: labels.length, types: groups.length, stories: typed };
+}
+
+export async function onRequestPost({ request, env }) {
+  const url = new URL(request.url);
+  const step = url.searchParams.get('step');
+  try {
+    if (step === 'raw') {
+      const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '20', 10) || 20, 1), 40);
+      return json(await stepRaw(env, limit));
+    }
+    if (step === 'types') return json(await stepTypes(env));
+    return json({ error: 'unknown step' }, 400);
+  } catch (err) {
+    return json({ error: String(err && err.message || err) }, 500);
+  }
+}
+
+export async function onRequestGet({ env }) {
+  const r = await env.DB.prepare(
+    'SELECT COUNT(*) AS total, SUM(mistake_raw IS NOT NULL) AS labelled, SUM(mistake_type_id IS NOT NULL) AS typed FROM stories_published'
+  ).first();
+  const t = await env.DB.prepare('SELECT COUNT(*) AS n FROM mistake_types').first();
+  return json({ total: r.total, labelled: r.labelled, typed: r.typed, types: t.n });
+}
