@@ -77,6 +77,8 @@ async function meaningIds(env, query, lang) {
   if (!scored.length) return [];
   scored.sort((a, b) => b.score - a.score);
   const top = scored[0].score;
+  meaningIds.last = { top: top, n60: scored.filter(x => x.score >= 0.60).length, n65: scored.filter(x => x.score >= 0.65).length,
+    r80: scored.filter(x => x.score >= top * 0.80).length, r85: scored.filter(x => x.score >= top * 0.85).length, all: scored.length };
   return scored.filter(x => x.score >= top * RELATIVE).map(x => x.id);
 }
 
@@ -119,7 +121,7 @@ async function write(env, query, groups) {
     max_tokens: 700,
     temperature: 0.2
   });
-  return parseJson(out && out.response);
+  return parseJson(out && (out.response || (out.choices && out.choices[0] && out.choices[0].message && out.choices[0].message.content)));
 }
 
 export async function onRequestGet({ request, env }) {
@@ -175,7 +177,7 @@ export async function onRequestGet({ request, env }) {
         const o = await env.AI.run(WRITE_MODEL, { messages: [{ role: 'user', content: 'Answer with JSON only: {"ok":true}' }], max_tokens: 20 });
         rawOut = JSON.stringify(o).slice(0, 500);
       } catch (e) { rawOut = 'ERR ' + String(e && e.message || e); }
-      return json({ why: why, probe: rawOut, meaning: ids.length - letters.length, letters: letters.length });
+      return json({ dist: meaningIds.last, why: why, probe: rawOut, meaning: ids.length - letters.length, letters: letters.length });
     }
     const items = groups.map(function (g, i) {
       const t = text && text.items && text.items[i] || {};
