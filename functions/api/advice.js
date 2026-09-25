@@ -167,8 +167,16 @@ export async function onRequestGet({ request, env }) {
     const groups = Object.keys(byType).map(k => byType[k]).sort((a, b) => b.count - a.count).slice(0, TOP_TYPES);
     if (!groups.length) return json({ show: false, total: ids.length });
 
-    let text = null;
-    try { text = await write(env, query, groups); } catch (e) { text = null; }
+    let text = null, why = '';
+    try { text = await write(env, query, groups); } catch (e) { text = null; why = String(e && e.message || e); }
+    if (url.searchParams.get('debug') === '1') {
+      let rawOut = '';
+      try {
+        const o = await env.AI.run(WRITE_MODEL, { messages: [{ role: 'user', content: 'Answer with JSON only: {"ok":true}' }], max_tokens: 20 });
+        rawOut = JSON.stringify(o).slice(0, 500);
+      } catch (e) { rawOut = 'ERR ' + String(e && e.message || e); }
+      return json({ why: why, probe: rawOut, meaning: ids.length - letters.length, letters: letters.length });
+    }
     const items = groups.map(function (g, i) {
       const t = text && text.items && text.items[i] || {};
       return {
