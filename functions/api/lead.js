@@ -51,7 +51,7 @@ async function sendMail(env, to, name, link) {
   if (!env.RESEND_API_KEY) return false;
   const text =
     'Hi ' + name + ',\n\n' +
-    'You asked for help on The Encyclopedia of Fuckups. Click the link below to confirm it was you, ' +
+    'You asked for help on The Library of Fuckups. Click the link below to confirm it was you, ' +
     'and we will pass your request to someone who fixes this kind of thing:\n\n' + link + '\n\n' +
     'If you did not ask for help, just ignore this email.\n\nFedya';
   const res = await fetch('https://api.resend.com/emails', {
